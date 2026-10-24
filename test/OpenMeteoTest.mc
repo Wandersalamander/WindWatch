@@ -1,5 +1,6 @@
 import Toybox.Lang;
 import Toybox.Test;
+import Toybox.Time;
 
 // Trimmed real response from api.open-meteo.com (2026-10-24)
 function sampleResponse() as Dictionary {
@@ -17,22 +18,59 @@ function sampleResponse() as Dictionary {
             "wind_gusts_10m" => [30.2, 31.7],
             "wind_direction_10m" => [214, 220],
         },
+        "minutely_15" => {
+            "time" => [1792836900],
+            "wind_speed_10m" => [18.2],
+            "wind_gusts_10m" => [35.6],
+            "wind_direction_10m" => [210],
+        },
     };
 }
 
 (:test)
 function currentWindUrlAsksForWindInUnixTime(logger as Logger) as Boolean {
     return currentWindUrl([46.5d, 6.25d]).equals(
-        "https://api.open-meteo.com/v1/forecast?latitude=46.50000&longitude=6.25000&current=wind_speed_10m,wind_gusts_10m,wind_direction_10m&timeformat=unixtime"
+        "https://api.open-meteo.com/v1/forecast?latitude=46.50&longitude=6.25&current=wind_speed_10m,wind_gusts_10m,wind_direction_10m&timeformat=unixtime"
     );
 }
 
 (:test)
-function forecastUrlAsksForHourlyWind(logger as Logger) as Boolean {
+function forecastUrlAsksForThreeDaysOfHours(logger as Logger) as Boolean {
     var url = forecastUrl([46.287075d, 6.16961d]);
     return url.find(
-        "&hourly=wind_speed_10m,wind_gusts_10m,wind_direction_10m&forecast_hours=48"
+        "&hourly=wind_speed_10m,wind_gusts_10m,wind_direction_10m&forecast_hours=72"
     ) != null;
+}
+
+(:test)
+function forecastUrlAsksForThreeHoursOfQuarterHours(logger as Logger) as Boolean {
+    var url = forecastUrl([46.287075d, 6.16961d]);
+    return url.find(
+        "&minutely_15=wind_speed_10m,wind_gusts_10m,wind_direction_10m&forecast_minutely_15=12"
+    ) != null;
+}
+
+(:test)
+function quarterHourlyForecastReadsItsOwnSeries(logger as Logger) as Boolean {
+    var forecast = quarterHourlyForecast(sampleResponse()) as Forecast;
+    return forecast[FORECAST_GUSTS][0] == 35.6f;
+}
+
+(:test)
+function requestWithoutPreviousOneIsDue(logger as Logger) as Boolean {
+    return isDue(null);
+}
+
+(:test)
+function requestTenMinutesAfterTheLastIsNotDue(logger as Logger) as Boolean {
+    var tenMinutesAgo = Time.now().subtract(new Time.Duration(10 * 60));
+    return isDue(tenMinutesAgo as Time.Moment) == false;
+}
+
+(:test)
+function requestTwentyMinutesAfterTheLastIsDue(logger as Logger) as Boolean {
+    var twentyMinutesAgo = Time.now().subtract(new Time.Duration(20 * 60));
+    return isDue(twentyMinutesAgo as Time.Moment);
 }
 
 (:test)

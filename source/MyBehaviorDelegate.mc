@@ -1,132 +1,114 @@
 using Toybox.System;
 import Toybox.Lang;
 import Toybox.WatchUi;
-using Toybox.Application.Storage;
 import Toybox.Position;
 
 enum {
-    GPS,
-    CHOOSE_LAKE,
-    UPDATE_ALL,
+    SET_FAVOURITE,
+    TOGGLE_SHOWN_POSITION,
+    RELOAD,
     CREDITS,
 }
 
+//! The view's onShow takes over GPS again when the menu closes
 class MyMenuDelegate extends WatchUi.Menu2InputDelegate {
     var view as LakeWindView;
 
     function initialize(view as LakeWindView) {
-        System.println("MyMenuDelegate.initialize");
         Menu2InputDelegate.initialize();
-        // Start aquiring GPS position, so that on button press the GPS-quality might be okay alread
+        // Warms up GPS, so "Set favourite here" gets a good fix
         Position.enableLocationEvents(
             Position.LOCATION_CONTINUOUS,
             method(:onPosition)
         );
         self.view = view;
     }
-    function onBack() as Void {
-        System.println("MyMenuDelegate.onBack");
-        WatchUi.popView(WatchUi.SLIDE_IMMEDIATE);
-        // disable GPS
-        Position.enableLocationEvents(
-            Position.LOCATION_DISABLE,
-            method(:onPosition)
-        );
-    }
 
     function onSelect(item as WatchUi.MenuItem) as Void {
-        System.println("MyMenuDelegate.onSelect");
-        // Closed first, so the toasts show on top of the lake view
-        WatchUi.popView(WatchUi.SLIDE_IMMEDIATE);
-        if (item has :getId) {
-            var Id = item.getId();
-            if (Id != null) {
-                var position_lat_long = getPosition();
-                switch (Id) {
-                    case GPS:
-                        var newFavouriteLake = getClosesLake(position_lat_long);
-                        if (
-                            position_lat_long != null and
-                            newFavouriteLake != null
-                        ) {
-                            setFavouritePosition(position_lat_long);
-                            setFavouriteLake(newFavouriteLake);
-                            WatchUi.showToast(
-                                readableLakeName(newFavouriteLake),
-                                null
-                            );
-                            self.view.notifyFullUpdate();
-                        } else {
-                            WatchUi.showToast(
-                                Rez.Strings.GpsTooInaccurate,
-                                null
-                            );
-                        }
-                        break; // mandatory, otherwise next case also executed
-                    case CHOOSE_LAKE:
-                        showLakeList(self.view);
-                        break; // mandatory, otherwise next case also executed
-                    case CREDITS:
-                        WatchUi.showToast(Rez.Strings.ThanksOpenMeteo, null);
-                        break; // mandatory, otherwise next case also executed
-                    case UPDATE_ALL:
-                        self.view.notifyFullUpdate();
-                        break; // mandatory, otherwise next case also executed
-                }
-            }
-            // disable GPS
+        var id = item.getId() as Number;
+        if (id == TOGGLE_SHOWN_POSITION) {
+            // Switches in place, the menu stays open
+            setShowsGps((item as WatchUi.ToggleMenuItem).isEnabled());
+            return;
         }
-        Position.enableLocationEvents(
-            Position.LOCATION_DISABLE,
-            method(:onPosition)
-        );
+        // Closed first, so the toasts show on top of the view
+        WatchUi.popView(WatchUi.SLIDE_IMMEDIATE);
+        switch (id) {
+            case SET_FAVOURITE:
+                setFavouriteHere();
+                break;
+            case RELOAD:
+                view.reload();
+                break;
+            case CREDITS:
+                WatchUi.showToast(Rez.Strings.ThanksOpenMeteo, null);
+                break;
+        }
     }
-    public function onPosition(info as Info) as Void {
-        System.println("MyMenuDelegate.onPosition");
-        System.println("info.accuracy");
-        System.println(info.accuracy);
+
+    private function setFavouriteHere() as Void {
+        var position = getPosition();
+        if (position == null) {
+            WatchUi.showToast(Rez.Strings.GpsTooInaccurate, null);
+            return;
+        }
+        setFavouritePosition(position);
+        WatchUi.showToast(Rez.Strings.FavouriteSaved, null);
+    }
+
+    public function onPosition(info as Position.Info) as Void {
+        System.println("MyMenuDelegate.onPosition " + info.accuracy);
     }
 }
 
 class MyBehaviorDelegate extends WatchUi.BehaviorDelegate {
     var view as LakeWindView;
+
     function initialize(view as LakeWindView) {
-        System.println("MyBehaviorDelegate.initialize");
         BehaviorDelegate.initialize();
         self.view = view;
     }
 
-    function onSelect() {
-        System.println("MyBehaviorDelegate.onSelect");
+    function onSelect() as Boolean {
         // A full screen menu, the ActionMenu cuts its labels to a few characters
         var menu = new WatchUi.Menu2({});
         menu.addItem(
             new WatchUi.MenuItem(
                 Rez.Strings.SetFavourite,
                 Rez.Strings.SetFavouriteHint,
-                GPS,
+                SET_FAVOURITE,
                 {}
             )
         );
         menu.addItem(
-            new WatchUi.MenuItem(
-                Rez.Strings.ChooseFavourite,
-                Rez.Strings.ChooseFavouriteHint,
-                CHOOSE_LAKE,
+            new WatchUi.ToggleMenuItem(
+                Rez.Strings.Show,
+                {
+                    :enabled => Rez.Strings.GpsPosition,
+                    :disabled => Rez.Strings.Favourite,
+                },
+                TOGGLE_SHOWN_POSITION,
+                getShowsGps(),
                 {}
             )
         );
-        menu.addItem(
-            new WatchUi.MenuItem(Rez.Strings.Reload, null, UPDATE_ALL, {})
-        );
+        menu.addItem(new WatchUi.MenuItem(Rez.Strings.Reload, null, RELOAD, {}));
         menu.addItem(
             new WatchUi.MenuItem(Rez.Strings.Credits, null, CREDITS, {})
         );
-        WatchUi.pushView(
-            menu,
-            new MyMenuDelegate(self.view),
-            WatchUi.SLIDE_LEFT
-        );
+        WatchUi.pushView(menu, new MyMenuDelegate(view), WatchUi.SLIDE_LEFT);
+        return true;
+    }
+
+    // DOWN or swiping up
+    function onNextPage() as Boolean {
+        view.showPage(1);
+        return true;
+    }
+
+    // UP or swiping down
+    function onPreviousPage() as Boolean {
+        view.showPage(-1);
         return true;
     }
 }

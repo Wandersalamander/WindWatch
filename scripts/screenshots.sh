@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Replaces the README screenshots Glance.png, View.png and Menu.png with the app
+# Replaces the README screenshots Glance.png, View*.png and Menu.png with the app
 # on the white fenix 7S, taken with live data in the simulator of the pinned
 # Docker image.
 #
@@ -19,4 +19,4 @@ docker_available || {
 echo "Taking screenshots on $SCREENSHOT_DEVICE"
 run_image --entrypoint python3 "$CONNECTIQ_IMAGE" \
   scripts/simulator_screenshots.py "$SCREENSHOT_DEVICE" .
-echo "Screenshots ready: Glance.png View.png Menu.png"
+echo "Screenshots ready: Glance.png View.png ViewToday.png ViewDays.png Menu.png"

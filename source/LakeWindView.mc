@@ -4,128 +4,104 @@ using Toybox.Graphics as Gfx;
 import Toybox.Lang;
 import Toybox.Communications;
 using Toybox.System;
-using Toybox.Time;
 import Toybox.Position;
 
-// Fractions of the screen height kept clear at the top and bottom edge. Round
-// screens narrow quickly towards the bottom, where the text lines are long.
-const EDGE_MARGIN_RATIO = 0.05;
-const ROUND_BOTTOM_MARGIN_RATIO = 0.1;
-// Fraction of the screen height between the text and the chart
+// Fraction of the screen height taken by the wind and the chart below it,
+// centered, where round screens are widest
+const CONTENT_HEIGHT_RATIO = 0.7;
+// Fraction of the screen height between the wind and the chart
 const CHART_GAP_RATIO = 0.02;
 
+//! The current wind and its forecast pages, for the favourite or, in GPS
+//! mode, for where the watch is
 class LakeWindView extends WatchUi.View {
+    private var _page as Number = NEXT_HOURS_PAGE;
+
     function initialize() {
         System.println("LakeWindView.initialize");
         View.initialize();
-        tryUpdateCurrentPosition();
-        makeRequest(true, true);
-    }
-
-    function tryUpdateCurrentPosition() as Void {
-        System.println("LakeWindView.tryUpdateCurrentPosition");
-        var newPos = getPosition();
-        var newLake = closestLake(newPos);
-        if (newPos != null and newLake != null) {
-            setCurrentPosition(newPos);
-            setCurrentDistance(newLake[1]);
-            var isSameLake = newLake[0].equals(getCurrentLake());
-            if (isSameLake) {
-                return;
-            }
-            setCurrentLake(newLake[0]);
-            // The previous lake's wind must not show under the new name
-            clearCurrentWind();
-            makeRequestProx(true);
-        }
-    }
-
-    function notifyFullUpdate() as Void {
-        tryUpdateCurrentPosition();
-        System.println("LakeWindView.notifyFavUpdate");
-        makeRequest(true, true);
     }
 
     function onLayout(dc as Dc) as Void {
-        System.println("LakeWindView.onLayout");
         setLayout(Rez.Layouts.MainLayout(dc));
     }
 
-    // Update the view
-    function onUpdate(dc as Dc) as Void {
-        tryUpdateCurrentPosition();
-        System.println("LakeWindView.onUpdate");
-        View.onUpdate(dc);
-        dc.setColor(Gfx.COLOR_WHITE, Gfx.COLOR_TRANSPARENT);
-
-        var topMargin = EDGE_MARGIN_RATIO * dc.getHeight();
-        var bottomMarginRatio = isRoundScreen()
-            ? ROUND_BOTTOM_MARGIN_RATIO
-            : EDGE_MARGIN_RATIO;
-        var bottomMargin = bottomMarginRatio * dc.getHeight();
-        var chartGap = CHART_GAP_RATIO * dc.getHeight();
-        var chartTop =
-            topMargin + 2 * dc.getFontHeight(LARGE_TEXT_FONT) + chartGap;
-        var closestLakeTop =
-            dc.getHeight() -
-            bottomMargin -
-            2 * dc.getFontHeight(SMALL_TEXT_FONT);
-
-        drawFavouriteLake(dc, topMargin);
-        drawForecast(dc, chartTop, closestLakeTop - chartGap);
-        drawClosestLake(dc, closestLakeTop);
+    //! Also called when the menu closes, which may have changed the position
+    function onShow() as Void {
+        followGps();
+        makeRequest(false);
+        WatchUi.requestUpdate();
     }
 
-    private function drawFavouriteLake(dc as Dc, top as Float) as Void {
-        var subscreen = subscreenArea();
-        if (subscreen != null) {
-            drawFavouriteLakeBesideSubscreen(dc, top, subscreen);
+    //! Moves that many forecast pages on, wrapping around at both ends
+    function showPage(steps as Number) as Void {
+        _page = pageAfter(_page, steps);
+        WatchUi.requestUpdate();
+    }
+
+    //! Asks for new data now, as Reload in the menu does
+    function reload() as Void {
+        makeRequest(true);
+    }
+
+    // GPS only runs in GPS mode. Starting from the last known position shows
+    // nearby wind before the first fix of this session.
+    private function followGps() as Void {
+        if (getShowsGps()) {
+            var lastKnown = getPosition();
+            if (lastKnown != null) {
+                setGpsPosition(lastKnown);
+            }
+            Position.enableLocationEvents(
+                Position.LOCATION_CONTINUOUS,
+                method(:onPosition)
+            );
+        } else {
+            Position.enableLocationEvents(
+                Position.LOCATION_DISABLE,
+                method(:onPosition)
+            );
+        }
+    }
+
+    function onPosition(info as Position.Info) as Void {
+        var position = info.position;
+        if (position != null) {
+            setGpsPosition(position.toDegrees());
+            // Only asks when the position left its model cell
+            makeRequest(false);
+            WatchUi.requestUpdate();
+        }
+    }
+
+    function onUpdate(dc as Dc) as Void {
+        View.onUpdate(dc);
+        var key = positionKey(shownPosition());
+        var height = dc.getHeight();
+        var windTop = (height * (1 - CONTENT_HEIGHT_RATIO)) / 2;
+        var chartTop =
+            windTop +
+            dc.getFontHeight(LARGE_TEXT_FONT) +
+            CHART_GAP_RATIO * height;
+        var chartBottom = height - windTop;
+
+        drawWind(dc, windTop, getWindFor(key));
+        drawForecast(dc, chartTop, chartBottom, getForecastsFor(key));
+    }
+
+    private function drawWind(dc as Dc, top as Float, wind as Wind?) as Void {
+        if (wind == null) {
             return;
         }
-        var favouriteWind = getFavouriteWind();
-        if (favouriteWind != null) {
-            drawWindLine(dc, top, LARGE_TEXT_FONT, favouriteWind);
-        }
-        drawFittedLine(
-            dc,
-            top + dc.getFontHeight(LARGE_TEXT_FONT),
-            LARGE_TEXT_FONT,
-            readableLakeName(getFavouriteLake())
-        );
-    }
-
-    // The subscreen highlights the speed, the name wraps left of it
-    private function drawFavouriteLakeBesideSubscreen(
-        dc as Dc,
-        top as Float,
-        subscreen as BoundingBox
-    ) as Void {
-        var favouriteWind = getFavouriteWind();
-        if (favouriteWind != null) {
+        dc.setColor(Gfx.COLOR_WHITE, Gfx.COLOR_TRANSPARENT);
+        drawWindLine(dc, top, LARGE_TEXT_FONT, wind);
+        var subscreen = subscreenArea();
+        if (subscreen != null) {
             // Only the mean speed, gusts and unit do not fit the subscreen
             drawInSubscreen(
                 dc,
                 subscreen,
-                favouriteWind[WIND_SPEED].format("%.0f")
-            );
-        }
-        var nameHeight = 2 * dc.getFontHeight(LARGE_TEXT_FONT);
-        var span = visibleSpan(dc, top, top + nameHeight);
-        // fitTextToArea needs some slack to allow the second line
-        var name = Graphics.fitTextToArea(
-            readableLakeName(getFavouriteLake()),
-            LARGE_TEXT_FONT,
-            span[1] - span[0],
-            nameHeight + dc.getFontHeight(LARGE_TEXT_FONT) / 2,
-            true
-        );
-        if (name != null) {
-            dc.drawText(
-                (span[0] + span[1]) / 2.0,
-                top,
-                LARGE_TEXT_FONT,
-                name,
-                Graphics.TEXT_JUSTIFY_CENTER
+                speedIn(wind[WIND_SPEED], speedUnit()).format("%.0f")
             );
         }
     }
@@ -133,129 +109,31 @@ class LakeWindView extends WatchUi.View {
     private function drawForecast(
         dc as Dc,
         top as Float,
-        bottom as Float
+        bottom as Float,
+        forecasts as [Forecast, Forecast]?
     ) as Void {
-        var forecast = getFavouriteForecast();
-        if (forecast != null) {
-            (new ForecastChart(dc, top, bottom)).draw(dc, forecast);
-        }
-    }
-
-    private function drawClosestLake(dc as Dc, top as Float) as Void {
-        var lineHeight = dc.getFontHeight(SMALL_TEXT_FONT);
-        drawFittedLine(dc, top, SMALL_TEXT_FONT, closestLakeLabel());
-        var currentLake = getCurrentLake();
-        if (currentLake == null) {
+        if (forecasts == null) {
             return;
         }
-        var currentWind = getCurrentWind();
-        var lakeName = readableLakeName(currentLake);
-        if (currentWind == null) {
-            drawFittedLine(dc, top + lineHeight, SMALL_TEXT_FONT, lakeName);
-        } else {
-            drawLakeWindLine(
-                dc,
-                top + lineHeight,
-                SMALL_TEXT_FONT,
-                lakeName,
-                currentWind
-            );
-        }
+        var chart = new ForecastChart(dc, top, bottom, pageTitle(_page));
+        chart.draw(dc, pageForecast(_page, forecasts));
     }
 
-    private function closestLakeLabel() as String {
-        var closestLake =
-            WatchUi.loadResource(Rez.Strings.ClosestLake) as String;
-        var currentDistance = getCurrentDistance();
-        if (currentDistance == null) {
-            return closestLake;
-        }
-        if (currentDistance >= 1000) {
-            return Lang.format("$1$ ($2$km)", [
-                closestLake,
-                (currentDistance / 1000.0).format("%d"),
-            ]);
-        }
-        return Lang.format("$1$ ($2$m)", [
-            closestLake,
-            currentDistance.format("%d"),
-        ]);
-    }
-
-    public function makeRequest(
-        forceFav as Boolean,
-        forceProx as Boolean
-    ) as Void {
-        System.println("LakeWindView.makeRequest");
-        makeRequestFav(forceFav);
-        makeRequestProx(forceProx);
-    }
-
-    public function makeRequestFav(forceFav as Boolean) as Void {
-        System.println("LakeWindView.makeRequestFav");
-        var skipUpdateBelowSeconds = new Time.Duration(60 * 60); // 60 min
-        var readyForUpdateFav = true;
-        var lastUpdateFav = getLastUpdateFav();
-        if (lastUpdateFav != null) {
-            readyForUpdateFav = Time.now().greaterThan(
-                lastUpdateFav.add(skipUpdateBelowSeconds)
-            );
-        }
-        if (forceFav) {
-            readyForUpdateFav = true;
-        }
-
-        if (readyForUpdateFav) {
-            var myRequestFav = forecastUrl(getFavouritePosition());
-            System.println(myRequestFav);
+    //! Requests the current wind and the forecasts of the shown position,
+    //! unless they are stored and recent or forced
+    private function makeRequest(forced as Boolean) as Void {
+        var position = shownPosition();
+        var key = positionKey(position);
+        if (forced || needsRequest(FORECASTS, key)) {
+            System.println(forecastUrl(position));
             Communications.makeWebRequest(
-                myRequestFav,
+                forecastUrl(position),
                 null,
                 {
                     :responseType => Communications.HTTP_RESPONSE_CONTENT_TYPE_JSON,
-                    // Drops answers for a lake that is no longer shown
-                    :context => getFavouriteLake(),
+                    :context => key,
                 },
-                method(:onReceiveFav)
-            );
-        }
-    }
-
-    public function makeRequestProx(forceProx as Boolean) as Void {
-        System.println("LakeWindView.makeRequestProx");
-        var skipUpdateBelowSeconds2 = new Time.Duration(15 * 60); // 15 min
-        var readyForUpdateProx = true;
-        var lastUpdateProx = getLastUpdateProx();
-        if (lastUpdateProx != null) {
-            readyForUpdateProx = Time.now().greaterThan(
-                lastUpdateProx.add(skipUpdateBelowSeconds2)
-            );
-        }
-        if (getCurrentWind() == null) {
-            readyForUpdateProx = true;
-        }
-        if (forceProx) {
-            readyForUpdateProx = true;
-        }
-
-        var currentLake = getCurrentLake();
-        var currentPosition = getCurrentPosition();
-        if (
-            currentLake != null &&
-            currentPosition != null &&
-            readyForUpdateProx
-        ) {
-            var myRequestProx = currentWindUrl(currentPosition);
-            System.println(myRequestProx);
-            Communications.makeWebRequest(
-                myRequestProx,
-                null,
-                {
-                    :responseType => Communications.HTTP_RESPONSE_CONTENT_TYPE_JSON,
-                    // Drops answers for a lake that is no longer shown
-                    :context => currentLake,
-                },
-                method(:onReceiveProx)
+                method(:onReceive)
             );
         }
     }
@@ -263,53 +141,28 @@ class LakeWindView extends WatchUi.View {
     //! Receive the data from the web request
     //! @param responseCode The server response code
     //! @param data Content from a successful request
-    //! @param requestedLake The lake the request was made for
-    public function onReceiveFav(
+    //! @param requestedKey The position key the request was made for
+    public function onReceive(
         responseCode as Number,
         data as Dictionary or String or Null,
-        requestedLake as Object
+        requestedKey as Object
     ) as Void {
-        System.println("LakeWindView.onReceiveFav");
-        System.println(responseCode);
-        // The favourite may have changed while the request was in flight
-        if (requestedLake.equals(getFavouriteLake()) == false) {
-            return;
-        }
+        System.println("LakeWindView.onReceive " + responseCode.toString());
         if (responseCode == 200 && data instanceof Dictionary) {
             var wind = currentWind(data);
             var forecast = hourlyForecast(data);
-            if (wind != null && forecast != null) {
-                // The glance shows the same current wind
-                setFavouriteWind(wind);
-                setFavouriteForecast(forecast);
-                setLastUpdateFav();
-                requestUpdate();
+            var quarterHourForecast = quarterHourlyForecast(data);
+            if (
+                wind != null &&
+                forecast != null &&
+                quarterHourForecast != null
+            ) {
+                var key = requestedKey as String;
+                // Also spares the glance its own request
+                storeFor(WIND, wind, key);
+                storeFor(FORECASTS, [forecast, quarterHourForecast], key);
+                WatchUi.requestUpdate();
             }
-        } else {
-            System.println("Failed to load, error " + responseCode.toString());
-        }
-    }
-
-    public function onReceiveProx(
-        responseCode as Number,
-        data as Dictionary or String or Null,
-        requestedLake as Object
-    ) as Void {
-        System.println("LakeWindView.onReceiveProx");
-        System.println(responseCode);
-        // The closest lake may have changed while the request was in flight
-        if (requestedLake.equals(getCurrentLake()) == false) {
-            return;
-        }
-        if (responseCode == 200 && data instanceof Dictionary) {
-            var wind = currentWind(data);
-            if (wind != null) {
-                setCurrentWind(wind);
-                setLastUpdateProx();
-                requestUpdate();
-            }
-        } else {
-            System.println("Failed to load, error " + responseCode.toString());
         }
     }
 }

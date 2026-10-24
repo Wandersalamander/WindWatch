@@ -1,111 +1,81 @@
 import Toybox.Lang;
 import Toybox.Time;
 import Toybox.Application.Storage;
-import Toybox.Application;
+
+// Club Nautique de Versoix on Lake Geneva
 (:glance)
-function setFavouritePosition(position_lat_long as [Double, Double]) as Void {
-    Storage.setValue("favouritePosition", position_lat_long);
-}
+const DEFAULT_FAVOURITE as [Double, Double] = [46.288474d, 6.174525d];
 
-function setFavouriteLake(newFavouriteLake as String) as Void {
-    Storage.setValue("favouriteLake", newFavouriteLake);
-}
+// Names of the data stored per position, see storeFor
 (:glance)
-function setFavouriteWind(wind as Wind) as Void {
-    Storage.setValue("favouriteWind", wind);
-}
-function setFavouriteForecast(forecast as Forecast) as Void {
-    Storage.setValue("favouriteForecast", forecast as Array<Storage.ValueType>);
-}
+const WIND = "wind";
+const FORECASTS = "forecasts";
 
-(:glance)
-function setGlanceLastUpdate() as Void {
-    Storage.setValue("glanceLastUpdate", Time.now().value() as Number);
-}
-function setLastUpdateProx() as Void {
-    Storage.setValue("lastUpdateProx", Time.now().value() as Number);
-}
-function setLastUpdateFav() as Void {
-    Storage.setValue("lastUpdateFav", Time.now().value() as Number);
-}
-
-function setCurrentWind(wind as Wind) as Void {
-    Storage.setValue("currentWind", wind);
-}
-function setCurrentDistance(currentDistance as Float) as Void {
-    Storage.setValue("currentDistance", currentDistance);
-}
-function clearCurrentWind() as Void {
-    Storage.deleteValue("currentWind");
-}
-
-// Getters
 (:glance)
 function getFavouritePosition() as [Double, Double] {
-    var myDefault = [(46.287075).toDouble(), (6.16961).toDouble()];
-    var ret = Storage.getValue("favouritePosition") as [Double, Double]?;
-    if (ret == null) {
-        return myDefault;
-    } else {
-        return ret;
+    var position = Storage.getValue("favouritePosition") as [Double, Double]?;
+    if (position == null) {
+        return DEFAULT_FAVOURITE;
     }
+    return position;
+}
+function setFavouritePosition(position as [Double, Double]) as Void {
+    Storage.setValue("favouritePosition", position);
 }
 
 (:glance)
-function getFavouriteLake() as String {
-    var myDefault = "geneva";
-    var ret = Storage.getValue("favouriteLake");
-    if (ret == null) {
-        return myDefault;
+function getShowsGps() as Boolean {
+    return true.equals(Storage.getValue("showsGps"));
+}
+function setShowsGps(showsGps as Boolean) as Void {
+    Storage.setValue("showsGps", showsGps);
+}
+
+(:glance)
+function getGpsPosition() as [Double, Double]? {
+    return Storage.getValue("gpsPosition") as [Double, Double]?;
+}
+function setGpsPosition(position as [Double, Double]) as Void {
+    Storage.setValue("gpsPosition", position);
+}
+
+//! Stores the value requested for the position key, with the request time
+(:glance)
+function storeFor(
+    name as String,
+    value as Storage.ValueType,
+    key as String
+) as Void {
+    Storage.setValue(name, value);
+    Storage.setValue(name + "Key", key);
+    Storage.setValue(name + "Time", Time.now().value());
+}
+
+//! The value stored for the position key, or null when it is for another one
+(:glance)
+function storedFor(name as String, key as String) as Storage.ValueType? {
+    if (key.equals(Storage.getValue(name + "Key"))) {
+        return Storage.getValue(name);
     }
-    return ret as String;
+    return null;
 }
 
+//! Whether the value for the position key is missing or due for a new request
 (:glance)
-function getFavouriteWind() as Wind? {
-    return Storage.getValue("favouriteWind") as Wind?;
-}
-function getFavouriteForecast() as Forecast? {
-    return Storage.getValue("favouriteForecast") as Forecast?;
-}
-
-(:glance)
-function _getLastUpdate(name as String) as Time.Moment? {
-    if (Storage.getValue(name) != null) {
-        return new Time.Moment(Storage.getValue(name) as Number);
-    } else {
-        return null;
+function needsRequest(name as String, key as String) as Boolean {
+    var time = Storage.getValue(name + "Time") as Number?;
+    if (storedFor(name, key) == null || time == null) {
+        return true;
     }
+    return isDue(new Time.Moment(time));
 }
+
 (:glance)
-function getGlanceLastUpdate() as Time.Moment? {
-    return _getLastUpdate("glanceLastUpdate");
-}
-function getLastUpdateProx() as Time.Moment? {
-    return _getLastUpdate("lastUpdateProx");
-}
-(:glance)
-function getLastUpdateFav() as Time.Moment? {
-    return _getLastUpdate("lastUpdateFav");
+function getWindFor(key as String) as Wind? {
+    return storedFor(WIND, key) as Wind?;
 }
 
-function getCurrentWind() as Wind? {
-    return Storage.getValue("currentWind") as Wind?;
-}
-function getCurrentDistance() as Float? {
-    return Storage.getValue("currentDistance") as Float?;
-}
-
-function getCurrentLake() as String? {
-    return Storage.getValue("currentLake") as String?;
-}
-function getCurrentPosition() as [Double, Double]? {
-    return Storage.getValue("currentPosition") as [Double, Double]?;
-}
-
-function setCurrentLake(lake as String) as Void {
-    Storage.setValue("currentLake", lake);
-}
-function setCurrentPosition(position as [Double, Double]) as Void {
-    Storage.setValue("currentPosition", position);
+//! [hourly, quarter hourly] forecast for the position key
+function getForecastsFor(key as String) as [Forecast, Forecast]? {
+    return storedFor(FORECASTS, key) as [Forecast, Forecast]?;
 }

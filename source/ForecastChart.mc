@@ -1,5 +1,6 @@
 import Toybox.Graphics;
 import Toybox.Lang;
+import Toybox.Math;
 import Toybox.Time;
 import Toybox.Time.Gregorian;
 import Toybox.WatchUi;
@@ -9,56 +10,72 @@ import Toybox.WatchUi;
 const MIN_CHART_TOP_SPEED = 20.0;
 // Pixels between the bars and their labels or the screen edge
 const CHART_PADDING = 4;
-// The bottom label shows the unit instead of 0, the bars obviously start at 0
-const WIDEST_RANGE_LABEL = "km/h";
 // Keeps the calmest bars visible above the axis instead of looking like missing data
 const MIN_BAR_HEIGHT = 3;
 const GUST_MARK_HEIGHT = 2;
-// One direction arrow per that many hours, drawn above the middle hour
-const HOURS_PER_ARROW = 6;
+// Distance between the direction arrows, in arrow row heights
+const ARROW_SPACING_RATIO = 1.5;
 // Fraction of the arrow row taken by an arrow
 const CHART_ARROW_SIZE_RATIO = 0.8;
 // Day labels sit below the local noon of their day
 const NOON_HOUR = 12;
+// Forecasts spanning at least a day get day labels, shorter ones hour labels
+const SECONDS_PER_DAY = 24 * 60 * 60;
 
-// Axis lines and labels stay quieter than the bars and the lake text
+// Axis lines and labels stay quieter than the bars and the wind text
 const CHART_GRID_COLOR = Graphics.COLOR_DK_GRAY;
 const CHART_LABEL_COLOR = Graphics.COLOR_LT_GRAY;
 
 //! Bar chart of the forecast wind speeds with marks at the gust speeds,
-//! a row of direction arrows above the bars, the day labels below them and
-//! range labels on their right side, fitted into the visible screen between
-//! top and bottom.
+//! a row of direction arrows above the bars ending in the speed at the top of
+//! the scale, day or hour labels below the bars and the title below them,
+//! fitted into the visible screen between top and bottom.
 class ForecastChart {
     private var _left as Float;
     private var _arrowsTop as Numeric;
-    private var _top as Numeric;
+    // Whole pixels, so all bars end on the same pixel row
+    private var _top as Number;
     private var _width as Float;
-    private var _barsHeight as Numeric;
+    private var _barsHeight as Number;
 
-    function initialize(dc as Dc, top as Numeric, bottom as Numeric) {
-        var span = visibleSpan(dc, top, bottom);
-        var labelWidth = dc.getTextWidthInPixels(
-            WIDEST_RANGE_LABEL,
-            SMALL_TEXT_FONT
-        );
-        var arrowRowHeight = dc.getFontHeight(SMALL_TEXT_FONT);
+    private var _title as String;
+
+    function initialize(
+        dc as Dc,
+        top as Numeric,
+        bottom as Numeric,
+        title as String
+    ) {
+        var rowHeight = dc.getFontHeight(SMALL_TEXT_FONT);
+        var titleTop = bottom - rowHeight;
+        // The short centered title does not narrow the chart
+        var span = visibleSpan(dc, top, titleTop);
+        _title = title;
         _left = span[0] + CHART_PADDING;
         _arrowsTop = top;
-        _top = top + arrowRowHeight;
-        _width = span[1] - _left - labelWidth - 2 * CHART_PADDING;
-        _barsHeight =
-            bottom - _top - CHART_PADDING - dc.getFontHeight(SMALL_TEXT_FONT);
+        _top = (top + rowHeight).toNumber();
+        _width = span[1] - span[0] - 2 * CHART_PADDING;
+        _barsHeight = (titleTop - _top - CHART_PADDING - rowHeight).toNumber();
     }
 
     function draw(dc as Dc, forecast as Forecast) as Void {
         var topSpeed = chartTopSpeed(forecast[FORECAST_GUSTS]);
+        var scaleLabel = scaleLabelOf(topSpeed);
+        var scaleLabelLeft =
+            _left +
+            _width -
+            dc.getTextWidthInPixels(scaleLabel, SMALL_TEXT_FONT);
         drawBars(dc, forecast[FORECAST_SPEEDS], topSpeed);
         drawGustMarks(dc, forecast[FORECAST_GUSTS], topSpeed);
         drawAxis(dc);
-        drawArrows(dc, forecast[FORECAST_DIRECTIONS]);
-        drawDayMarks(dc, forecast[FORECAST_TIMES]);
-        drawRangeLabels(dc, topSpeed);
+        drawArrows(
+            dc,
+            forecast[FORECAST_DIRECTIONS],
+            scaleLabelLeft - CHART_PADDING
+        );
+        drawTimeMarks(dc, forecast[FORECAST_TIMES]);
+        drawTitle(dc);
+        drawScaleLabel(dc, scaleLabel);
     }
 
     private function drawBars(
@@ -75,13 +92,11 @@ class ForecastChart {
             if (barHeight < MIN_BAR_HEIGHT) {
                 barHeight = MIN_BAR_HEIGHT;
             }
+            // fillRectangle truncates top and height on their own, which
+            // would leave the bottom of some bars a pixel short
+            var barTop = Math.round(bottom - barHeight).toNumber();
             dc.setColor(getColor(speeds[i]), Graphics.COLOR_TRANSPARENT);
-            dc.fillRectangle(
-                barLeft,
-                bottom - barHeight,
-                barRight - barLeft,
-                barHeight
-            );
+            dc.fillRectangle(barLeft, barTop, barRight - barLeft, bottom - barTop);
         }
     }
 
@@ -113,23 +128,69 @@ class ForecastChart {
         dc.drawLine(_left, barsBottom(), _left + _width, barsBottom());
     }
 
-    private function drawArrows(dc as Dc, directions as Array<Float>) as Void {
+    //! Arrows up to the right end, where the scale label starts
+    private function drawArrows(
+        dc as Dc,
+        directions as Array<Float>,
+        right as Float
+    ) as Void {
         var slotWidth = _width / directions.size();
         var rowHeight = _top - _arrowsTop;
         var arrowLength = CHART_ARROW_SIZE_RATIO * rowHeight;
+        var samplesPerArrow = Math.ceil(
+            (ARROW_SPACING_RATIO * rowHeight) / slotWidth
+        ).toNumber();
         dc.setColor(CHART_LABEL_COLOR, Graphics.COLOR_TRANSPARENT);
         for (
-            var i = HOURS_PER_ARROW / 2;
+            var i = samplesPerArrow / 2;
             i < directions.size();
-            i += HOURS_PER_ARROW
+            i += samplesPerArrow
         ) {
+            var x = _left + (i + 0.5) * slotWidth;
+            if (x + arrowLength / 2 > right) {
+                break;
+            }
             drawWindArrow(
                 dc,
-                _left + (i + 0.5) * slotWidth,
+                x,
                 _arrowsTop + rowHeight / 2.0,
                 arrowLength,
                 directions[i]
             );
+        }
+    }
+
+    private function drawTimeMarks(dc as Dc, times as Array<Number>) as Void {
+        var spansDays = times[times.size() - 1] - times[0] >= SECONDS_PER_DAY;
+        if (spansDays) {
+            drawDayMarks(dc, times);
+        } else {
+            drawHourMarks(dc, times);
+        }
+    }
+
+    // Labels every whole hour that has room after the previous label
+    private function drawHourMarks(dc as Dc, times as Array<Number>) as Void {
+        var slotWidth = _width / times.size();
+        var freeFromX = _left;
+        dc.setColor(CHART_LABEL_COLOR, Graphics.COLOR_TRANSPARENT);
+        for (var i = 0; i < times.size(); i++) {
+            var info = localInfo(times[i]);
+            var x = _left + i * slotWidth;
+            var label = info.hour.format("%d") + "h";
+            var halfWidth = dc.getTextWidthInPixels(label, SMALL_TEXT_FONT) / 2;
+            var fits = x - halfWidth >= freeFromX;
+            if (info.min == 0 && fits) {
+                dc.drawLine(x, barsBottom(), x, barsBottom() + CHART_PADDING);
+                dc.drawText(
+                    x,
+                    barsBottom() + CHART_PADDING,
+                    SMALL_TEXT_FONT,
+                    label,
+                    Graphics.TEXT_JUSTIFY_CENTER
+                );
+                freeFromX = x + halfWidth + CHART_PADDING;
+            }
         }
     }
 
@@ -180,8 +241,8 @@ class ForecastChart {
         x as Float,
         label as String
     ) as Void {
-        var labelLeft = x - dc.getTextWidthInPixels(label, SMALL_TEXT_FONT) / 2;
-        if (labelLeft < _left) {
+        var labelWidth = dc.getTextWidthInPixels(label, SMALL_TEXT_FONT);
+        if (x - labelWidth / 2 < _left) {
             return;
         }
         dc.setColor(CHART_LABEL_COLOR, Graphics.COLOR_TRANSPARENT);
@@ -194,33 +255,38 @@ class ForecastChart {
         );
     }
 
-    private function drawRangeLabels(dc as Dc, topSpeed as Float) as Void {
-        var labelX = _left + _width + CHART_PADDING;
-        var labelHeight = dc.getFontHeight(SMALL_TEXT_FONT);
-        var bottomLabelTop = barsBottom() - labelHeight;
-        dc.setColor(CHART_LABEL_COLOR, Graphics.COLOR_TRANSPARENT);
+    // Centered below the time labels, where round screens are still wide
+    // enough for one word
+    private function drawTitle(dc as Dc) as Void {
+        dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
         dc.drawText(
-            labelX,
-            _top,
+            _left + _width / 2,
+            barsBottom() + CHART_PADDING + dc.getFontHeight(SMALL_TEXT_FONT),
             SMALL_TEXT_FONT,
-            speedIn(topSpeed, speedUnit()).format("%.0f"),
-            Graphics.TEXT_JUSTIFY_LEFT
-        );
-        // Small screens leave the bars too low for two labels
-        var labelsOverlap = bottomLabelTop < _top + labelHeight;
-        if (labelsOverlap) {
-            return;
-        }
-        dc.drawText(
-            labelX,
-            bottomLabelTop,
-            SMALL_TEXT_FONT,
-            speedUnitLabel(speedUnit()),
-            Graphics.TEXT_JUSTIFY_LEFT
+            _title,
+            Graphics.TEXT_JUSTIFY_CENTER
         );
     }
 
-    private function barsBottom() as Numeric {
+    // At the right end of the arrow row, right above the top of the bars it
+    // stands for
+    private function drawScaleLabel(dc as Dc, label as String) as Void {
+        dc.setColor(CHART_LABEL_COLOR, Graphics.COLOR_TRANSPARENT);
+        dc.drawText(
+            _left + _width,
+            _arrowsTop,
+            SMALL_TEXT_FONT,
+            label,
+            Graphics.TEXT_JUSTIFY_RIGHT
+        );
+    }
+
+    private function scaleLabelOf(topSpeed as Float) as String {
+        var unit = speedUnit();
+        return speedIn(topSpeed, unit).format("%.0f") + " " + speedUnitLabel(unit);
+    }
+
+    private function barsBottom() as Number {
         return _top + _barsHeight;
     }
 }

@@ -10,12 +10,17 @@ stored its value, but the watch did not redraw the glance after
 
 ## Not checked on touch watches
 
-`scripts/simulator_screenshots.py` presses keys but cannot swipe, so the lake
-list was not seen on the venu, vivoactive and approach watches. On the venusq2
-the menu did not open either.
+`scripts/simulator_screenshots.py` presses keys but cannot swipe, so swiping
+between the forecast pages was not seen on the venu, vivoactive and approach
+watches. On the venusq2 the menu did not open in TwelveLakes either.
 
-## Wind on small lakes
+## Model wind on small lakes
 
-Open-Meteo picks the weather model cell of the lake's position. On small lakes
-in narrow valleys the model wind can differ from the wind on the water, and
+Open-Meteo picks the weather model cell of the position. On small lakes in
+narrow valleys the model wind can differ from the wind on the water, and
 local winds like the Bise or thermal winds are smoothed out.
+
+## Glance in GPS mode
+
+Glances get no GPS, so in GPS mode the glance shows the wind at the last
+position the view got, until the view is opened again.

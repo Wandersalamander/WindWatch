@@ -23,25 +23,6 @@ const FONTS_BY_SIZE as Array<FontType> = [
     Graphics.FONT_XTINY,
 ];
 
-//! Draws one line of text centered in the visible part of its row,
-//! truncated with an ellipsis if it does not fit.
-function drawFittedLine(
-    dc as Dc,
-    top as Numeric,
-    font as FontType,
-    text as String
-) as Void {
-    var span = visibleSpan(dc, top, top + dc.getFontHeight(font));
-    var spanCenter = (span[0] + span[1]) / 2.0;
-    dc.drawText(
-        spanCenter,
-        top,
-        font,
-        fitText(dc, text, font, span[1] - span[0]),
-        Graphics.TEXT_JUSTIFY_CENTER
-    );
-}
-
 //! Draws the wind range with its direction arrow in front, centered in the
 //! visible part of its row. Without the unit, which the forecast chart shows,
 //! as the top row of round screens is narrow.
@@ -53,20 +34,6 @@ function drawWindLine(
 ) as Void {
     var width = arrowLineTextWidth(dc, top, font);
     var text = fitText(dc, formatWindRange(wind, speedUnit()), font, width);
-    drawArrowLine(dc, top, font, text, wind[WIND_DIRECTION]);
-}
-
-//! Draws "<lake> <wind>" with the direction arrow in front, truncating the
-//! lake name rather than the wind if the line does not fit
-function drawLakeWindLine(
-    dc as Dc,
-    top as Numeric,
-    font as FontType,
-    lakeName as String,
-    wind as Wind
-) as Void {
-    var width = arrowLineTextWidth(dc, top, font);
-    var text = lakeWindText(dc, lakeName, wind, font, width);
     drawArrowLine(dc, top, font, text, wind[WIND_DIRECTION]);
 }
 
@@ -149,6 +116,8 @@ function chordLength(radius as Float, distanceFromCenter as Float) as Float {
 
 //! Horizontal extent [left, right] that is visible over the whole height
 //! of the row from top to bottom, excluding round display edges and subscreens.
+//! Symmetric around the middle of the screen, so content in it looks centered
+//! even when a subscreen cuts one side.
 function visibleSpan(
     dc as Dc,
     top as Numeric,
@@ -165,7 +134,12 @@ function visibleSpan(
             span[1] = rightOfSpan.toFloat();
         }
     }
-    return span;
+    var middle = dc.getWidth() / 2.0;
+    var halfWidth = middle - span[0];
+    if (span[1] - middle < halfWidth) {
+        halfWidth = span[1] - middle;
+    }
+    return [middle - halfWidth, middle + halfWidth];
 }
 
 function displaySpan(
@@ -181,14 +155,6 @@ function displaySpan(
         return octagonSpan(dc, top);
     }
     return circleSpan(dc, top, bottom);
-}
-
-function isRoundScreen() as Boolean {
-    var shape = System.getDeviceSettings().screenShape;
-    return (
-        shape == System.SCREEN_SHAPE_ROUND ||
-        shape == System.SCREEN_SHAPE_SEMI_ROUND
-    );
 }
 
 function octagonSpan(dc as Dc, top as Numeric) as [Float, Float] {
@@ -246,17 +212,4 @@ function fitText(
         shortened = shortened.substring(0, shortened.length() - 1) as String;
     }
     return shortened + ELLIPSIS;
-}
-
-(:glance)
-function lakeWindText(
-    dc as Dc,
-    lakeName as String,
-    wind as Wind,
-    font as FontType,
-    width as Numeric
-) as String {
-    var windText = " " + formatWind(wind, speedUnit());
-    var nameWidth = width - dc.getTextWidthInPixels(windText, font);
-    return fitText(dc, lakeName, font, nameWidth) + windText;
 }

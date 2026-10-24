@@ -1,4 +1,5 @@
-"""Takes the README screenshots Glance.png, View.png and Menu.png in the simulator.
+"""Takes the README screenshots Glance.png, View.png, ViewToday.png,
+ViewDays.png and Menu.png in the simulator.
 
 Runs inside the Connect IQ Docker image (see scripts/screenshots.sh), which
 has the simulator, Xvfb and python3, but no screenshot tool. So the screen is
@@ -31,6 +32,8 @@ SIMULATOR_START_SECONDS = 5
 APP_LOAD_SECONDS = 25
 # The action menu slides in
 MENU_OPEN_SECONDS = 3
+# The view redraws the next forecast page
+PAGE_SWITCH_SECONDS = 2
 # The simulator ignores a press and release without a pause between them
 KEY_HOLD_SECONDS = 0.15
 
@@ -53,6 +56,12 @@ def main(device, output_dir):
 
     start_app(program, device, glance_setting="0")
     save("View.png")
+    for page in ("ViewToday.png", "ViewDays.png"):
+        press_key(simulator_config, "down")
+        time.sleep(PAGE_SWITCH_SECONDS)
+        save(page)
+    press_key(simulator_config, "down")
+    time.sleep(PAGE_SWITCH_SECONDS)
     press_key(simulator_config, "enter")
     time.sleep(MENU_OPEN_SECONDS)
     save("Menu.png")

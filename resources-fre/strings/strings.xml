@@ -1,104 +1,19 @@
 <strings>
     <string id="AppName">LakeWind</string>
-    <string id="ClosestLake">Lac le plus proche</string>
     <string id="Today">Auj.</string>
+    <string id="NextHours">3 h</string>
+    <string id="NextDays">3 jours</string>
     <string id="SetFavourite">Favori ici</string>
     <string id="SetFavouriteHint">Vent à cet endroit</string>
-    <string id="ChooseFavourite">Choisir favori</string>
-    <string id="ChooseFavouriteHint">Dans la liste des lacs</string>
+    <string id="Show">Afficher</string>
+    <string id="Favourite">Favori</string>
+    <string id="GpsPosition">Position GPS</string>
     <string id="Reload">Recharger</string>
     <string id="Credits">Crédits</string>
     <string id="GpsTooInaccurate">GPS trop imprécis</string>
     <string id="SpeedUnitTitle">Unité de vitesse du vent</string>
     <string id="Knots">Nœuds</string>
     <string id="KilometersPerHour">km/h</string>
+    <string id="FavouriteSaved">Favori enregistré</string>
     <string id="ThanksOpenMeteo">Données: Open-Meteo.com</string>
-
-
-    <string id="ageri"  scope="glance">Lac d'Ägeri</string>
-    <string id="baldegg"  scope="glance">Lac de Baldegg</string>
-    <string id="hallwil"  scope="glance">Lac de Hallwil</string>
-    <string id="biel"  scope="glance">Lac de Bienne</string>
-    <string id="upperconstance"  scope="glance">Lac de Constance</string>
-    <string id="lowerconstance"  scope="glance">Lac de Constance</string>
-    <string id="brienz"  scope="glance">Lac de Brienz</string>
-    <string id="thun"  scope="glance">Lac de Thoune</string>
-    <string id="geneva"  scope="glance">Lac Léman</string>
-    <string id="greifensee"  scope="glance">Lac de Greifen</string>
-    <string id="gruyere"  scope="glance">Lac de la Gruyère</string>
-    <string id="klontalersee"  scope="glance">Lac du Klöntal</string>
-    <string id="joux"  scope="glance">Lac de Joux</string>
-    <string id="maggiore"  scope="glance">Lac Majeur</string>
-    <string id="zurich"  scope="glance">Lac de Zurich</string>
-    <string id="lucernekreuztrichterandvitznauerbecken"  scope="glance">Lac des Quatre-Cantons</string>
-    <string id="lucerneurnersee"  scope="glance">Lac des Quatre-Cantons</string>
-    <string id="lucernegersauerandtreibbecken"  scope="glance">Lac des Quatre-Cantons</string>
-    <string id="lungern"  scope="glance">Lac de Lungern</string>
-    <string id="murten"  scope="glance">Lac de Morat</string>
-    <string id="neuchatel"  scope="glance">Lac de Neuchâtel </string>
-    <string id="pfaffikon"  scope="glance">Lac de Pfäffikon</string>
-    <string id="sempach"  scope="glance">Lac de Sempach</string>
-    <string id="sarnen"  scope="glance">Lac de Sarnen</string>
-    <string id="alpnachersee"  scope="glance">Lac d'Alpnach</string>
-    <string id="lugano"  scope="glance">Lac de Lugano</string>
-    <string id="walensee"  scope="glance">Lac de Walenstadt</string>
-    <string id="zug"  scope="glance">Lac de Zoug</string>
-    <string id="sihlsee"  scope="glance">Lac de Sihl</string>
-    <string id="poschiavo"  scope="glance">Lago di Poschiavo</string>
-    <string id="sils"  scope="glance">Lac de Sils</string>
-    <string id="silvaplana"  scope="glance">Lac de Silvaplana</string>
-    <string id="stmoritz"  scope="glance">Lac de Saint-Moritz</string>
-    <string id="champfer"  scope="glance">Lej da Champfer</string>
-    <string id="lauerz"  scope="glance">Lac de Lauerz</string>
-    <string id="rotsee"  scope="glance">Rotsee</string>
-    <string id="turlersee"  scope="glance">Türlersee</string>
-    <string id="amsoldingersee"  scope="glance">Amsoldingersee</string>
-    <string id="moossee"  scope="glance">Moossee</string>
-    <string id="mauensee"  scope="glance">Mauensee</string>
-    <string id="oeschinensee"  scope="glance">Lac d'Oeschinen</string>
-    <string id="soppensee"  scope="glance">Soppensee</string>
-    <string id="inkwilersee"  scope="glance">Lac d'Inkwil</string>
-    <string id="huttwilersee"  scope="glance">Hüttwilersee</string>
-    <string id="cadagno"  scope="glance">Lac de Cadagno</string>
-    <string id="husemersee"  scope="glance">Husemersee</string>
-    <string id="huttnersee"  scope="glance">Hüttnersee</string>
-    <string id="lutzelsee"  scope="glance">Lützelsee</string>
-    <string id="mettmenhaslisee"  scope="glance">Mettmenhaslisee</string>
-    <string id="egelsee"  scope="glance">Egelsee</string>
-    <string id="untererchatzensee"  scope="glance">Unterer Chatzensee</string>
-    <string id="seeweidsee"  scope="glance">Seeweidsee</string>
-    <string id="burgaschisee"  scope="glance">Burgäschisee</string>
-    <string id="burgseeli"  scope="glance">Burgseeli</string>
-    <string id="dittligsee"  scope="glance">Dittligsee</string>
-    <string id="gerzensee"  scope="glance">Gerzensee</string>
-    <string id="lobsigensee"  scope="glance">Lobsigensee</string>
-    <string id="chlimoossee"  scope="glance">Chli Moossee</string>
-    <string id="uebeschisee"  scope="glance">Uebeschisee</string>
-    <string id="bret"  scope="glance">Lac de Bret</string>
-    <string id="brenet"  scope="glance">Lac Brenet</string>
-    <string id="chavonnes"  scope="glance">Lac des Chavonnes</string>
-    <string id="bretaye"  scope="glance">Lac de Bretaye</string>
-    <string id="lioson"  scope="glance">Lac Lioson</string>
-    <string id="tome"  scope="glance">Lago di Tome</string>
-    <string id="barone"  scope="glance">Lago Barone</string>
-    <string id="superiore"  scope="glance">Lago Superiore</string>
-    <string id="sassolo"  scope="glance">Lago di Sassolo</string>
-    <string id="geistsee"  scope="glance">Geistsee</string>
-    <string id="lenkerseeli"  scope="glance">Lenkerseeli</string>
-    <string id="stockseewli"  scope="glance">Stockseewli</string>
-    <string id="oberesbanzlauiseeli"  scope="glance">Oberes Bänzlauiseeli</string>
-    <string id="barchetsee"  scope="glance">Barchetsee</string>
-    <string id="bichelsee"  scope="glance">Bichelsee</string>
-    <string id="hasenseeost"  scope="glance">Hasensee Ost</string>
-    <string id="hasenseewest"  scope="glance">Hasensee West</string>
-    <string id="hauptwilerweiher"  scope="glance">Hauptwiler Weiher</string>
-    <string id="hugiweiher"  scope="glance">Hugiweiher</string>
-    <string id="obererbommerweiher"  scope="glance">Oberer Bommerweiher</string>
-    <string id="marwilermoos"  scope="glance">Märwiler Moos</string>
-    <string id="nussbommersee"  scope="glance">Nussbommersee</string>
-    <string id="vagoweiher"  scope="glance">Vago Weiher</string>
-    <string id="wilemersee"  scope="glance">Wilemersee</string>
-    <string id="wistererweiher"  scope="glance">Wisterer Weiher</string>
-    <string id="garda"  scope="glance">Lac de Garde</string>
-    <string id="caldonazzo"  scope="glance">Lac de Caldonazzo</string>
 </strings>
