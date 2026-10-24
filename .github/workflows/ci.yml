@@ -1,0 +1,43 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    # Daily: the Open-Meteo API can change without any commit on our side
+    - cron: "0 6 * * *"
+
+jobs:
+  unit-tests:
+    if: github.event_name != 'schedule'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # Newest, oldest API level, low memory, monochrome and AMOLED
+        device: [fenix7pro, fr745, fr55, instinct2, venu3]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run unit tests in the simulator
+        run: |
+          source scripts/toolchain.env
+          docker run --rm -v "$PWD:/app" -w /app "$CONNECTIQ_IMAGE" ${{ matrix.device }}
+
+  build-all-devices:
+    if: github.event_name != 'schedule'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Generate a throwaway signing key
+        run: |
+          openssl genrsa -out key.pem 4096
+          openssl pkcs8 -topk8 -inform PEM -outform DER -in key.pem -out key.der -nocrypt
+      - name: Build the store package for every device, failing on warnings
+        run: bash scripts/build_iq.sh key.der
+
+  api-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: bash scripts/check_api_contract.sh

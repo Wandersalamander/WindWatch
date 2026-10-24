@@ -1,0 +1,8 @@
+{
+  "monkeyC.typeCheckLevel": "Strict",
+  "prettierMonkeyC.typeCheckLevel": "Strict",
+  "prettierMonkeyC.strictTypeCheck": "On",
+  "prettierMonkeyC.checkTypes": "ERROR",
+  "prettierMonkeyC.checkInvalidSymbols": "ERROR",
+  "prettierMonkeyC.checkCompilerLookupRules": "ERROR"
+}

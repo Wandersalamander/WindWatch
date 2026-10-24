@@ -1,0 +1,4 @@
+<properties>
+    <!-- 0 knots, 1 km/h, see SpeedUnit in source/SpeedUnit.mc -->
+    <property id="SpeedUnit" type="number">0</property>
+</properties>

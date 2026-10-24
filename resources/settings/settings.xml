@@ -1,0 +1,8 @@
+<settings>
+    <setting propertyKey="@Properties.SpeedUnit" title="@Strings.SpeedUnitTitle">
+        <settingConfig type="list">
+            <listEntry value="0">@Strings.Knots</listEntry>
+            <listEntry value="1">@Strings.KilometersPerHour</listEntry>
+        </settingConfig>
+    </setting>
+</settings>

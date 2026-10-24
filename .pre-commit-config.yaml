@@ -1,0 +1,19 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: end-of-file-fixer
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.30.0
+    hooks:
+      - id: gitleaks
+  - repo: local
+    hooks:
+      - id: prettier-monkeyc
+        name: prettier (monkey c)
+        language: node
+        entry: prettier --write
+        files: \.mc$
+        additional_dependencies:
+          - prettier@3.3.3
+          - "@markw65/prettier-plugin-monkeyc@1.0.59"

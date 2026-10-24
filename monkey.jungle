@@ -1,0 +1,72 @@
+project.manifest = manifest.xml
+base.sourcePath = source;test
+
+# Launcher icons come in the exact size of each device, see resources-icon-<size>
+base.resourcePath = resources;resources-hint;resources-icon-40
+
+# Monochrome displays cannot tell the temperature colors apart, see Colors.mc
+base.excludeAnnotations = monochromeDisplay
+descentg1.excludeAnnotations = colorDisplay
+instinct2.excludeAnnotations = colorDisplay
+instinct2s.excludeAnnotations = colorDisplay
+instinct2x.excludeAnnotations = colorDisplay
+instinctcrossover.excludeAnnotations = colorDisplay
+
+# These devices predate the personality icons used by the ActionMenu hint
+descentmk2.resourcePath = resources;resources-nohint;resources-icon-40
+descentmk2s.resourcePath = resources;resources-nohint;resources-icon-40
+fr745.resourcePath = resources;resources-nohint;resources-icon-40
+fr945.resourcePath = resources;resources-nohint;resources-icon-40
+
+# Devices whose launcher icon is not 40x40
+approachs50.resourcePath = resources;resources-hint;resources-icon-56
+approachs7042mm.resourcePath = resources;resources-hint;resources-icon-60
+approachs7047mm.resourcePath = resources;resources-hint;resources-icon-70
+d2airx10.resourcePath = resources;resources-hint;resources-icon-70
+d2mach1.resourcePath = resources;resources-hint;resources-icon-60
+d2mach2.resourcePath = resources;resources-hint;resources-icon-65
+d2mach2pro.resourcePath = resources;resources-hint;resources-icon-65
+descentg1.resourcePath = resources;resources-hint;resources-icon-62
+descentg2.resourcePath = resources;resources-hint;resources-icon-60
+descentmk343mm.resourcePath = resources;resources-hint;resources-icon-60
+descentmk351mm.resourcePath = resources;resources-hint;resources-icon-60
+epix2.resourcePath = resources;resources-hint;resources-icon-60
+epix2pro42mm.resourcePath = resources;resources-hint;resources-icon-60
+epix2pro47mm.resourcePath = resources;resources-hint;resources-icon-60
+epix2pro51mm.resourcePath = resources;resources-hint;resources-icon-60
+fenix843mm.resourcePath = resources;resources-hint;resources-icon-60
+fenix847mm.resourcePath = resources;resources-hint;resources-icon-65
+fenix8pro47mm.resourcePath = resources;resources-hint;resources-icon-65
+fenix943mm.resourcePath = resources;resources-hint;resources-icon-60
+fenix947mm.resourcePath = resources;resources-hint;resources-icon-65
+fenix9pro43mm.resourcePath = resources;resources-hint;resources-icon-60
+fenix9pro47mm.resourcePath = resources;resources-hint;resources-icon-65
+fenix9pro51mm.resourcePath = resources;resources-hint;resources-icon-65
+fenixe.resourcePath = resources;resources-hint;resources-icon-60
+fr165.resourcePath = resources;resources-hint;resources-icon-54
+fr165m.resourcePath = resources;resources-hint;resources-icon-54
+fr170.resourcePath = resources;resources-hint;resources-icon-54
+fr170m.resourcePath = resources;resources-hint;resources-icon-54
+fr265.resourcePath = resources;resources-hint;resources-icon-60
+fr265s.resourcePath = resources;resources-hint;resources-icon-60
+fr55.resourcePath = resources;resources-hint;resources-icon-35
+fr57042mm.resourcePath = resources;resources-hint;resources-icon-54
+fr57047mm.resourcePath = resources;resources-hint;resources-icon-65
+fr70.resourcePath = resources;resources-hint;resources-icon-54
+fr965.resourcePath = resources;resources-hint;resources-icon-65
+fr970.resourcePath = resources;resources-hint;resources-icon-65
+instinct2.resourcePath = resources;resources-hint;resources-icon-62
+instinct2s.resourcePath = resources;resources-hint;resources-icon-54
+instinct2x.resourcePath = resources;resources-hint;resources-icon-62
+instinct3amoled45mm.resourcePath = resources;resources-hint;resources-icon-60
+instinct3amoled50mm.resourcePath = resources;resources-hint;resources-icon-60
+instinctcrossover.resourcePath = resources;resources-hint;resources-icon-26
+marq2.resourcePath = resources;resources-hint;resources-icon-60
+marq2aviator.resourcePath = resources;resources-hint;resources-icon-60
+venu2.resourcePath = resources;resources-hint;resources-icon-70
+venu2plus.resourcePath = resources;resources-hint;resources-icon-70
+venu2s.resourcePath = resources;resources-hint;resources-icon-61
+venu3.resourcePath = resources;resources-hint;resources-icon-70
+venu3s.resourcePath = resources;resources-hint;resources-icon-70
+vivoactive5.resourcePath = resources;resources-hint;resources-icon-56
+vivoactive6.resourcePath = resources;resources-hint;resources-icon-54

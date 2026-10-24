@@ -1,0 +1,2 @@
+# The scripts also run in WSL and Docker, where bash fails on CRLF
+*.sh text eol=lf
