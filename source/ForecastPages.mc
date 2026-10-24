@@ -3,7 +3,7 @@ import Toybox.Time;
 import Toybox.Time.Gregorian;
 import Toybox.WatchUi;
 
-//! The forecast pages of the view, in the order DOWN and swiping up go through
+//! The forecast pages, in the order DOWN and swiping up go through
 enum ForecastPage {
     NEXT_HOURS_PAGE,
     TODAY_PAGE,
@@ -11,9 +11,24 @@ enum ForecastPage {
     PAGE_COUNT,
 }
 
-//! The page that many steps after the page, wrapping around at both ends
-function pageAfter(page as Number, steps as Number) as Number {
-    return (page + steps + PAGE_COUNT) % PAGE_COUNT;
+//! The pages in the watch's own page loop, which also shows where you are
+//! and slides between them
+class ForecastPageFactory extends WatchUi.ViewLoopFactory {
+    function initialize() {
+        ViewLoopFactory.initialize();
+    }
+
+    function getSize() as Number {
+        return PAGE_COUNT;
+    }
+
+    function getView(
+        page as Number
+    ) as [ViewLoopFactory.Views] or
+        [ViewLoopFactory.Views, ViewLoopFactory.Delegates] {
+        var view = new LakeWindView(page as ForecastPage);
+        return [view, new MyBehaviorDelegate(view)];
+    }
 }
 
 //! Of the [hourly, quarter hourly] forecasts: the next 3 hours in quarter

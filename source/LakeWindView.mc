@@ -12,14 +12,14 @@ const CONTENT_HEIGHT_RATIO = 0.7;
 // Fraction of the screen height between the wind and the chart
 const CHART_GAP_RATIO = 0.02;
 
-//! The current wind and its forecast pages, for the favourite or, in GPS
+//! The current wind and one forecast page, for the favourite or, in GPS
 //! mode, for where the watch is
 class LakeWindView extends WatchUi.View {
-    private var _page as Number = NEXT_HOURS_PAGE;
+    private var _page as ForecastPage;
 
-    function initialize() {
-        System.println("LakeWindView.initialize");
+    function initialize(page as ForecastPage) {
         View.initialize();
+        _page = page;
     }
 
     function onLayout(dc as Dc) as Void {
@@ -30,12 +30,6 @@ class LakeWindView extends WatchUi.View {
     function onShow() as Void {
         followGps();
         makeRequest(false);
-        WatchUi.requestUpdate();
-    }
-
-    //! Moves that many forecast pages on, wrapping around at both ends
-    function showPage(steps as Number) as Void {
-        _page = pageAfter(_page, steps);
         WatchUi.requestUpdate();
     }
 

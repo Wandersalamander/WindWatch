@@ -2,16 +2,6 @@ import Toybox.Lang;
 import Toybox.Test;
 import Toybox.Time;
 
-(:test)
-function pageAfterLastIsFirst(logger as Logger) as Boolean {
-    return pageAfter(NEXT_DAYS_PAGE, 1) == NEXT_HOURS_PAGE;
-}
-
-(:test)
-function pageBeforeFirstIsLast(logger as Logger) as Boolean {
-    return pageAfter(NEXT_HOURS_PAGE, -1) == NEXT_DAYS_PAGE;
-}
-
 // 22h, 23h, then 0h and 1h of tomorrow, in local time
 function forecastAroundMidnight() as Forecast {
     var midnight = Time.today().value();

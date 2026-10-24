@@ -19,12 +19,12 @@ class LakeWindApp extends Application.AppBase {
         WatchUi.requestUpdate();
     }
 
-    // Return the initial view of your application here
     (:typecheck(disableGlanceCheck))
     function getInitialView() as [Views] or [Views, InputDelegates] {
-        var view = new LakeWindView();
-        var delegate = new MyBehaviorDelegate(view);
-        return [view, delegate];
+        var pages = new WatchUi.ViewLoop(new ForecastPageFactory(), {
+            :wrap => true,
+        });
+        return [pages, new WatchUi.ViewLoopDelegate(pages)];
     }
 }
 

@@ -99,16 +99,4 @@ class MyBehaviorDelegate extends WatchUi.BehaviorDelegate {
         WatchUi.pushView(menu, new MyMenuDelegate(view), WatchUi.SLIDE_LEFT);
         return true;
     }
-
-    // DOWN or swiping up
-    function onNextPage() as Boolean {
-        view.showPage(1);
-        return true;
-    }
-
-    // UP or swiping down
-    function onPreviousPage() as Boolean {
-        view.showPage(-1);
-        return true;
-    }
 }
