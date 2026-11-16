@@ -16,7 +16,7 @@ jobs:
       fail-fast: false
       matrix:
         # Newest, oldest API level, low memory, monochrome and AMOLED
-        device: [fenix7pro, fr745, fr55, instinct2, venu3]
+        device: [fenix7pro, descentg1, fr55, instinct2, venu3]
     steps:
       - uses: actions/checkout@v4
       - name: Run unit tests in the simulator
