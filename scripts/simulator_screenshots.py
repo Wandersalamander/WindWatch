@@ -1,4 +1,4 @@
-"""Takes the README screenshots Glance.png, View.png, ViewToday.png,
+"""Takes the README screenshots Glance.png, View.png, ViewDay.png,
 ViewDays.png and Menu.png in the simulator.
 
 Runs inside the Connect IQ Docker image (see scripts/screenshots.sh), which
@@ -66,7 +66,7 @@ def main(device, output_dir):
     press_key(simulator_config, "esc")
     time.sleep(MENU_OPEN_SECONDS + PAGE_INDICATOR_SECONDS)
     save("View.png")
-    for page in ("ViewToday.png", "ViewDays.png"):
+    for page in ("ViewDay.png", "ViewDays.png"):
         press_key(simulator_config, "down")
         time.sleep(PAGE_SWITCH_SECONDS)
         save(page)

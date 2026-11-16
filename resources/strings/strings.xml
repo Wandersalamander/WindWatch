@@ -3,6 +3,7 @@
 
     <string id="Today">Today</string>
     <string id="NextHours">3 h</string>
+    <string id="NextDay">24 h</string>
     <string id="NextDays">3 days</string>
     <string id="SetFavourite">Set favourite here</string>
     <string id="SetFavouriteHint">Wind at this spot</string>

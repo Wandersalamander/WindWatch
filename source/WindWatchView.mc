@@ -4,6 +4,7 @@ using Toybox.Graphics as Gfx;
 import Toybox.Lang;
 using Toybox.System;
 import Toybox.Position;
+import Toybox.Time;
 
 // Fraction of the screen height taken by the wind and the chart below it,
 // centered, where round screens are widest
@@ -132,8 +133,12 @@ class WindWatchView extends WatchUi.View {
         if (forecasts == null) {
             return;
         }
+        var forecast = pageForecast(_page, forecasts, Time.now().value());
+        if (forecast == null) {
+            return;
+        }
         var chart = new ForecastChart(dc, top, bottom, pageTitle(_page));
-        chart.draw(dc, pageForecast(_page, forecasts));
+        chart.draw(dc, forecast);
     }
 
     //! Requests the current wind and the forecasts of the shown position,

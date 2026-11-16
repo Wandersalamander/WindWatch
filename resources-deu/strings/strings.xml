@@ -2,6 +2,7 @@
     <string id="AppName">WindWatch</string>
     <string id="Today">Heute</string>
     <string id="NextHours">3 Std.</string>
+    <string id="NextDay">24 Std.</string>
     <string id="NextDays">3 Tage</string>
     <string id="SetFavourite">Hier als Favorit</string>
     <string id="SetFavouriteHint">Wind an diesem Ort</string>

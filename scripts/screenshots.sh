@@ -19,4 +19,4 @@ docker_available || {
 echo "Taking screenshots on $SCREENSHOT_DEVICE"
 run_image --entrypoint python3 "$CONNECTIQ_IMAGE" \
   scripts/simulator_screenshots.py "$SCREENSHOT_DEVICE" .
-echo "Screenshots ready: Glance.png View.png ViewToday.png ViewDays.png Menu.png"
+echo "Screenshots ready: Glance.png View.png ViewDay.png ViewDays.png Menu.png"

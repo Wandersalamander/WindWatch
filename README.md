@@ -4,14 +4,14 @@ WindWatch is a Garmin glance app that shows the wind at your favourite spot or w
 
 <img src="Glance.png" width="200"/> <img src="Menu.png" width="200"/>
 
-<img src="View.png" width="200"/> <img src="ViewToday.png" width="200"/> <img src="ViewDays.png" width="200"/>
+<img src="View.png" width="200"/> <img src="ViewDay.png" width="200"/> <img src="ViewDays.png" width="200"/>
 
 ## Features
 
 - **Glance:** the current wind as `<mean>-<gust> kn` with an arrow pointing where the wind blows, and a Beaufort color bar with the wind on it.
 - **View:** the current wind and a forecast chart.
 - **Favourite or GPS position:** the menu switches between the wind at your favourite spot and the wind where you are.
-- **Three forecast pages**, switched with DOWN and UP or by swiping: the next 3 hours in quarter hours, the rest of today and the next 3 days in hours. The title of the page shows right of the chart.
+- **Three forecast pages**, switched with DOWN and UP or by swiping: the next 3 hours in quarter hours, the next 24 and the next 72 hours in hours. Each page starts at the current sample, so a forecast stored without a connection never shows past hours. The title of the page shows right of the chart.
 - **Forecast chart:** bars colored by wind speed, light gray marks for the gusts and arrows above the bars for the wind direction.
 - **Knots or km/h:** knots by default, km/h can be chosen in the app settings in Garmin Connect or Garmin Express.
 - **No API key** needed.
@@ -48,7 +48,7 @@ The glance asks for the current wind only:
 https://api.open-meteo.com/v1/forecast?latitude=46.29&longitude=6.17&current=wind_speed_10m,wind_gusts_10m,wind_direction_10m&timeformat=unixtime
 ```
 
-The view adds the hourly forecast with `&hourly=wind_speed_10m,wind_gusts_10m,wind_direction_10m&forecast_hours=72` and the quarter hourly one with `&minutely_15=...&forecast_minutely_15=12`, both starting now. The "today" page is cut from the hourly forecast.
+The view adds the hourly forecast with `&hourly=wind_speed_10m,wind_gusts_10m,wind_direction_10m&forecast_hours=72` and the quarter hourly one with `&minutely_15=...&forecast_minutely_15=12`, both starting now. The 24 hour page is cut from the hourly forecast.
 Positions are rounded to 2 decimals, about 1 km, which is finer than the weather models. The data is stored per rounded position, so switching between favourite and GPS never shows the wind of the other place, and GPS jitter asks for nothing new.
 Each kind of request is sent at most every 15 minutes per position, as often as Open-Meteo updates the current wind. Only a new position or Reload in the menu ask earlier.
 The app always requests km/h and converts for display, so a changed unit shows without a new request.
