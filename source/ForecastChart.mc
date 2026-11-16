@@ -96,7 +96,12 @@ class ForecastChart {
             // would leave the bottom of some bars a pixel short
             var barTop = Math.round(bottom - barHeight).toNumber();
             dc.setColor(getColor(speeds[i]), Graphics.COLOR_TRANSPARENT);
-            dc.fillRectangle(barLeft, barTop, barRight - barLeft, bottom - barTop);
+            dc.fillRectangle(
+                barLeft,
+                barTop,
+                barRight - barLeft,
+                bottom - barTop
+            );
         }
     }
 
@@ -283,7 +288,9 @@ class ForecastChart {
 
     private function scaleLabelOf(topSpeed as Float) as String {
         var unit = speedUnit();
-        return speedIn(topSpeed, unit).format("%.0f") + " " + speedUnitLabel(unit);
+        return (
+            speedIn(topSpeed, unit).format("%.0f") + " " + speedUnitLabel(unit)
+        );
     }
 
     private function barsBottom() as Number {

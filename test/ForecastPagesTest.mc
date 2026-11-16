@@ -7,7 +7,12 @@ function forecastAroundMidnight() as Forecast {
     var midnight = Time.today().value();
     var hour = 60 * 60;
     return [
-        [midnight + 22 * hour, midnight + 23 * hour, midnight + 24 * hour, midnight + 25 * hour],
+        [
+            midnight + 22 * hour,
+            midnight + 23 * hour,
+            midnight + 24 * hour,
+            midnight + 25 * hour,
+        ],
         [1.0, 2.0, 3.0, 4.0],
         [5.0, 6.0, 7.0, 8.0],
         [90.0, 90.0, 90.0, 90.0],

@@ -37,17 +37,23 @@ function currentWindUrlAsksForWindInUnixTime(logger as Logger) as Boolean {
 (:test)
 function forecastUrlAsksForThreeDaysOfHours(logger as Logger) as Boolean {
     var url = forecastUrl([46.287075d, 6.16961d]);
-    return url.find(
-        "&hourly=wind_speed_10m,wind_gusts_10m,wind_direction_10m&forecast_hours=72"
-    ) != null;
+    return (
+        url.find(
+            "&hourly=wind_speed_10m,wind_gusts_10m,wind_direction_10m&forecast_hours=72"
+        ) != null
+    );
 }
 
 (:test)
-function forecastUrlAsksForThreeHoursOfQuarterHours(logger as Logger) as Boolean {
+function forecastUrlAsksForThreeHoursOfQuarterHours(
+    logger as Logger
+) as Boolean {
     var url = forecastUrl([46.287075d, 6.16961d]);
-    return url.find(
-        "&minutely_15=wind_speed_10m,wind_gusts_10m,wind_direction_10m&forecast_minutely_15=12"
-    ) != null;
+    return (
+        url.find(
+            "&minutely_15=wind_speed_10m,wind_gusts_10m,wind_direction_10m&forecast_minutely_15=12"
+        ) != null
+    );
 }
 
 (:test)
