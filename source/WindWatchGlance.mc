@@ -1,6 +1,5 @@
 using Toybox.WatchUi as Ui;
 using Toybox.Graphics as Gfx;
-import Toybox.Communications;
 import Toybox.Lang;
 import Toybox.WatchUi;
 using Toybox.System;
@@ -61,16 +60,8 @@ class WidgetGlanceView extends Ui.GlanceView {
         var key = positionKey(position);
         if (needsRequest(WIND, key)) {
             System.println(currentWindUrl(position));
-            Communications.makeWebRequest(
-                currentWindUrl(position),
-                null,
-                {
-                    :responseType
-                    =>
-                    Communications.HTTP_RESPONSE_CONTENT_TYPE_JSON,
-                    :context => key,
-                },
-                method(:onReceive)
+            (new PositionRequest(key, method(:onReceive))).start(
+                currentWindUrl(position)
             );
         }
     }
@@ -130,17 +121,17 @@ class WidgetGlanceView extends Ui.GlanceView {
     //! Receive the data from the web request
     //! @param responseCode The server response code
     //! @param data Content from a successful request
-    //! @param requestedKey The position key the request was made for
+    //! @param key The position key the request was made for
     public function onReceive(
         responseCode as Number,
         data as Dictionary or String or Null,
-        requestedKey as Object
+        key as String
     ) as Void {
         System.println(responseCode);
         if (responseCode == 200 && data instanceof Dictionary) {
             var wind = currentWind(data);
             if (wind != null) {
-                storeFor(WIND, wind, requestedKey as String);
+                storeFor(WIND, wind, key);
             }
         }
         requestUpdate();

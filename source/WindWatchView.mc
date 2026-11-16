@@ -2,7 +2,6 @@ import Toybox.Graphics;
 import Toybox.WatchUi;
 using Toybox.Graphics as Gfx;
 import Toybox.Lang;
-import Toybox.Communications;
 using Toybox.System;
 import Toybox.Position;
 
@@ -147,27 +146,22 @@ class WindWatchView extends WatchUi.View {
 
     private function request() as Void {
         var position = shownPosition();
-        _requestedKey = positionKey(position);
+        var key = positionKey(position);
+        _requestedKey = key;
         System.println(forecastUrl(position));
-        Communications.makeWebRequest(
-            forecastUrl(position),
-            null,
-            {
-                :responseType => Communications.HTTP_RESPONSE_CONTENT_TYPE_JSON,
-                :context => _requestedKey,
-            },
-            method(:onReceive)
+        (new PositionRequest(key, method(:onReceive))).start(
+            forecastUrl(position)
         );
     }
 
     //! Receive the data from the web request
     //! @param responseCode The server response code
     //! @param data Content from a successful request
-    //! @param requestedKey The position key the request was made for
+    //! @param key The position key the request was made for
     public function onReceive(
         responseCode as Number,
         data as Dictionary or String or Null,
-        requestedKey as Object
+        key as String
     ) as Void {
         System.println("WindWatchView.onReceive " + responseCode.toString());
         if (responseCode == 200 && data instanceof Dictionary) {
@@ -179,7 +173,6 @@ class WindWatchView extends WatchUi.View {
                 forecast != null &&
                 quarterHourForecast != null
             ) {
-                var key = requestedKey as String;
                 // Also spares the glance its own request
                 storeFor(WIND, wind, key);
                 storeFor(FORECASTS, [forecast, quarterHourForecast], key);
