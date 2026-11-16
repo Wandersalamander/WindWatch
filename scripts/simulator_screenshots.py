@@ -14,6 +14,7 @@ Usage: python3 scripts/simulator_screenshots.py <device> <output directory>
 import ctypes
 import json
 import os
+import resource
 import struct
 import subprocess
 import sys
@@ -41,6 +42,9 @@ KEY_HOLD_SECONDS = 0.15
 
 
 def main(device, output_dir):
+    # The simulator can crash on shutdown, and its core dump would be copied
+    # back into the repository
+    resource.setrlimit(resource.RLIMIT_CORE, (0, 0))
     program = build(device)
     simulator_config = load_simulator_config(device)
     center_glance(device, simulator_config)
