@@ -75,6 +75,25 @@ class MyBehaviorDelegate extends WatchUi.BehaviorDelegate {
     }
 }
 
+//! Switches the forecast pages on watches without the page loop
+class PagingDelegate extends MyBehaviorDelegate {
+    function initialize(view as WindWatchView) {
+        MyBehaviorDelegate.initialize(view);
+    }
+
+    // DOWN or swiping up
+    function onNextPage() as Boolean {
+        view.showPage(1);
+        return true;
+    }
+
+    // UP or swiping down
+    function onPreviousPage() as Boolean {
+        view.showPage(-1);
+        return true;
+    }
+}
+
 //! The menu behind START, which also opens by itself on the first start
 function showMenu(view as WindWatchView) as Void {
     // A full screen menu, the ActionMenu cuts its labels to a few characters

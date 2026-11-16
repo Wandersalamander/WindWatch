@@ -46,6 +46,12 @@ class WindWatchView extends WatchUi.View {
         showMenu(self);
     }
 
+    //! Moves that many forecast pages on, wrapping around at both ends
+    function showPage(steps as Number) as Void {
+        _page = pageAfter(_page, steps);
+        WatchUi.requestUpdate();
+    }
+
     //! Asks for new data now, as Reload in the menu does
     function reload() as Void {
         request();

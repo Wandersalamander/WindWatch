@@ -11,6 +11,11 @@ enum ForecastPage {
     PAGE_COUNT,
 }
 
+//! The page that many steps after the page, wrapping around at both ends
+function pageAfter(page as ForecastPage, steps as Number) as ForecastPage {
+    return ((page + steps + PAGE_COUNT) % PAGE_COUNT) as ForecastPage;
+}
+
 //! The pages in the watch's own page loop, which also shows where you are
 //! and slides between them
 class ForecastPageFactory extends WatchUi.ViewLoopFactory {
