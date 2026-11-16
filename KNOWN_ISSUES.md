@@ -24,3 +24,11 @@ local winds like the Bise or thermal winds are smoothed out.
 
 Glances get no GPS, so in GPS mode the glance shows the wind at the last
 position the view got, until the view is opened again.
+
+## Forecast pages not checked on watches without the page loop
+
+The fr745, fr945 and watches on Connect IQ below 3.4 switch the forecast
+pages in one view instead of the watch's own page loop. In the simulator
+the fr745 shows the view and the menu, but DOWN moved the widget carousel
+on, and START did not open the app from its glance, so switching pages
+there was not seen. Check it on a real watch.
