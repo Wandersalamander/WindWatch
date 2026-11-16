@@ -23,6 +23,19 @@ function setFavouritePosition(position as [Double, Double]) as Void {
     Storage.setValue("favouritePosition", position);
 }
 
+function hasFavourite() as Boolean {
+    return Storage.getValue("favouritePosition") != null;
+}
+
+//! Kept apart from the favourite, so backing out of the prompt does not
+//! bring it back on every launch
+function hasShownFavouritePrompt() as Boolean {
+    return Storage.getValue("favouritePromptShown") != null;
+}
+function setFavouritePromptShown() as Void {
+    Storage.setValue("favouritePromptShown", true);
+}
+
 (:glance)
 function getShowsGps() as Boolean {
     return true.equals(Storage.getValue("showsGps"));

@@ -31,6 +31,17 @@ class WindWatchView extends WatchUi.View {
         followGps();
         makeRequest(false);
         WatchUi.requestUpdate();
+        promptForFavourite();
+    }
+
+    //! Opens the menu once, as new users miss it behind START and would
+    //! only see the wind at the default favourite
+    private function promptForFavourite() as Void {
+        if (hasFavourite() || hasShownFavouritePrompt()) {
+            return;
+        }
+        setFavouritePromptShown();
+        showMenu(self);
     }
 
     //! Asks for new data now, as Reload in the menu does

@@ -30,8 +30,10 @@ DEVICE_IMAGE_OFFSET = (1, 26)
 SIMULATOR_START_SECONDS = 5
 # ponytail: fixed wait for the Open-Meteo requests, poll the screen if it gets flaky
 APP_LOAD_SECONDS = 25
-# The action menu slides in
+# The menu slides in or out
 MENU_OPEN_SECONDS = 3
+# The page loop shows where you are for a moment after the menu closes
+PAGE_INDICATOR_SECONDS = 5
 # The view redraws the next forecast page
 PAGE_SWITCH_SECONDS = 2
 # The simulator ignores a press and release without a pause between them
@@ -54,17 +56,16 @@ def main(device, output_dir):
     simulator.kill()
     simulator.wait()
 
+    # The menu opens by itself on the first start, as no favourite is stored
     start_app(program, device, glance_setting="0")
+    save("Menu.png")
+    press_key(simulator_config, "esc")
+    time.sleep(MENU_OPEN_SECONDS + PAGE_INDICATOR_SECONDS)
     save("View.png")
     for page in ("ViewToday.png", "ViewDays.png"):
         press_key(simulator_config, "down")
         time.sleep(PAGE_SWITCH_SECONDS)
         save(page)
-    press_key(simulator_config, "down")
-    time.sleep(PAGE_SWITCH_SECONDS)
-    press_key(simulator_config, "enter")
-    time.sleep(MENU_OPEN_SECONDS)
-    save("Menu.png")
 
 
 def start_app(program, device, glance_setting):

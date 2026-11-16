@@ -32,10 +32,11 @@ Monochrome watches (Instinct) draw everything in white.
 ## Usage
 
 1. Open WindWatch on your watch. It shows the wind at your favourite spot, at first the Club Nautique de Versoix on Lake Geneva.
-2. Press START for the menu:
+2. Press START for the menu (on the first start it opens by itself; press BACK to keep the default):
    - **Set favourite here** saves where you stand as your favourite spot.
    - **Show** switches between **Favourite** and **GPS position**. With GPS position, the view follows you with GPS while it is open. The glance gets no GPS of its own and shows the last position the view got.
    - **Reload** asks for new data right away.
+   - **Credits** shows where the wind data comes from, Open-Meteo.com under CC BY 4.0.
 
 The arrows point north up, they do not turn with the watch.
 

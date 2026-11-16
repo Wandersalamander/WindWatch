@@ -70,35 +70,36 @@ class MyBehaviorDelegate extends WatchUi.BehaviorDelegate {
     }
 
     function onSelect() as Boolean {
-        // A full screen menu, the ActionMenu cuts its labels to a few characters
-        var menu = new WatchUi.Menu2({});
-        menu.addItem(
-            new WatchUi.MenuItem(
-                Rez.Strings.SetFavourite,
-                Rez.Strings.SetFavouriteHint,
-                SET_FAVOURITE,
-                {}
-            )
-        );
-        menu.addItem(
-            new WatchUi.ToggleMenuItem(
-                Rez.Strings.Show,
-                {
-                    :enabled => Rez.Strings.GpsPosition,
-                    :disabled => Rez.Strings.Favourite,
-                },
-                TOGGLE_SHOWN_POSITION,
-                getShowsGps(),
-                {}
-            )
-        );
-        menu.addItem(
-            new WatchUi.MenuItem(Rez.Strings.Reload, null, RELOAD, {})
-        );
-        menu.addItem(
-            new WatchUi.MenuItem(Rez.Strings.Credits, null, CREDITS, {})
-        );
-        WatchUi.pushView(menu, new MyMenuDelegate(view), WatchUi.SLIDE_LEFT);
+        showMenu(view);
         return true;
     }
+}
+
+//! The menu behind START, which also opens by itself on the first start
+function showMenu(view as WindWatchView) as Void {
+    // A full screen menu, the ActionMenu cuts its labels to a few characters
+    var menu = new WatchUi.Menu2({});
+    menu.addItem(
+        new WatchUi.MenuItem(
+            Rez.Strings.SetFavourite,
+            Rez.Strings.SetFavouriteHint,
+            SET_FAVOURITE,
+            {}
+        )
+    );
+    menu.addItem(
+        new WatchUi.ToggleMenuItem(
+            Rez.Strings.Show,
+            {
+                :enabled => Rez.Strings.GpsPosition,
+                :disabled => Rez.Strings.Favourite,
+            },
+            TOGGLE_SHOWN_POSITION,
+            getShowsGps(),
+            {}
+        )
+    );
+    menu.addItem(new WatchUi.MenuItem(Rez.Strings.Reload, null, RELOAD, {}));
+    menu.addItem(new WatchUi.MenuItem(Rez.Strings.Credits, null, CREDITS, {}));
+    WatchUi.pushView(menu, new MyMenuDelegate(view), WatchUi.SLIDE_LEFT);
 }
