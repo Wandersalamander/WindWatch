@@ -16,6 +16,8 @@ const CHART_GAP_RATIO = 0.02;
 //! mode, for where the watch is
 class WindWatchView extends WatchUi.View {
     private var _page as ForecastPage;
+    // Position key of the last request, answered or not
+    private var _requestedKey as String?;
 
     function initialize(page as ForecastPage) {
         View.initialize();
@@ -29,7 +31,7 @@ class WindWatchView extends WatchUi.View {
     //! Also called when the menu closes, which may have changed the position
     function onShow() as Void {
         followGps();
-        makeRequest(false);
+        requestIfOutdated();
         WatchUi.requestUpdate();
         promptForFavourite();
     }
@@ -46,7 +48,7 @@ class WindWatchView extends WatchUi.View {
 
     //! Asks for new data now, as Reload in the menu does
     function reload() as Void {
-        makeRequest(true);
+        request();
     }
 
     // GPS only runs in GPS mode. Starting from the last known position shows
@@ -73,8 +75,13 @@ class WindWatchView extends WatchUi.View {
         var position = info.position;
         if (position != null) {
             setGpsPosition(position.toDegrees());
-            // Only asks when the position left its model cell
-            makeRequest(false);
+            // GPS fixes come every second, faster than an answer or a retry
+            // makes sense, so only a new rounded position asks again
+            var key = positionKey(shownPosition());
+            if (key.equals(_requestedKey)) {
+                return;
+            }
+            requestIfOutdated();
             WatchUi.requestUpdate();
         }
     }
@@ -125,24 +132,26 @@ class WindWatchView extends WatchUi.View {
     }
 
     //! Requests the current wind and the forecasts of the shown position,
-    //! unless they are stored and recent or forced
-    private function makeRequest(forced as Boolean) as Void {
-        var position = shownPosition();
-        var key = positionKey(position);
-        if (forced || needsRequest(FORECASTS, key)) {
-            System.println(forecastUrl(position));
-            Communications.makeWebRequest(
-                forecastUrl(position),
-                null,
-                {
-                    :responseType
-                    =>
-                    Communications.HTTP_RESPONSE_CONTENT_TYPE_JSON,
-                    :context => key,
-                },
-                method(:onReceive)
-            );
+    //! unless they are stored and recent
+    private function requestIfOutdated() as Void {
+        if (needsRequest(FORECASTS, positionKey(shownPosition()))) {
+            request();
         }
+    }
+
+    private function request() as Void {
+        var position = shownPosition();
+        _requestedKey = positionKey(position);
+        System.println(forecastUrl(position));
+        Communications.makeWebRequest(
+            forecastUrl(position),
+            null,
+            {
+                :responseType => Communications.HTTP_RESPONSE_CONTENT_TYPE_JSON,
+                :context => _requestedKey,
+            },
+            method(:onReceive)
+        );
     }
 
     //! Receive the data from the web request
