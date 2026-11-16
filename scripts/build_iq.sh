@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Builds the store package bin/LakeWind.iq for every device in manifest.xml,
+# Builds the store package bin/WindWatch.iq for every device in manifest.xml,
 # with the same toolchain as CI (scripts/toolchain.env). Fails on compiler warnings.
 # Then updates the README screenshots, see scripts/screenshots.sh.
 #
@@ -13,7 +13,7 @@ cd "$(dirname "$0")/.."
 source scripts/toolchain.env
 source scripts/docker.sh
 
-OUTPUT=bin/LakeWind.iq
+OUTPUT=bin/WindWatch.iq
 BUILD_LOG=bin/build.log
 COMPILER_ARGS="-e -r -w -l 3 -f monkey.jungle -o $OUTPUT"
 

@@ -65,7 +65,9 @@ class WidgetGlanceView extends Ui.GlanceView {
                 currentWindUrl(position),
                 null,
                 {
-                    :responseType => Communications.HTTP_RESPONSE_CONTENT_TYPE_JSON,
+                    :responseType
+                    =>
+                    Communications.HTTP_RESPONSE_CONTENT_TYPE_JSON,
                     :context => key,
                 },
                 method(:onReceive)

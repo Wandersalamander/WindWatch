@@ -26,7 +26,7 @@ class ForecastPageFactory extends WatchUi.ViewLoopFactory {
         page as Number
     ) as [ViewLoopFactory.Views] or
         [ViewLoopFactory.Views, ViewLoopFactory.Delegates] {
-        var view = new LakeWindView(page as ForecastPage);
+        var view = new WindWatchView(page as ForecastPage);
         return [view, new MyBehaviorDelegate(view)];
     }
 }

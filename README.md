@@ -1,6 +1,6 @@
-# LakeWind <img src="resources-icon-70/drawables/launcher_icon.png" width="40" height="40"/>
+# WindWatch <img src="resources-icon-70/drawables/launcher_icon.png" width="40" height="40"/>
 
-LakeWind is a Garmin glance app that shows the wind at your favourite spot or where you are, anywhere in the world, for sailors, windsurfers, kiters, SUP paddlers and swimmers. The wind comes from the free [Open-Meteo API](https://open-meteo.com/).
+WindWatch is a Garmin glance app that shows the wind at your favourite spot or where you are, anywhere in the world, for sailors, windsurfers, kiters, SUP paddlers and swimmers. The wind comes from the free [Open-Meteo API](https://open-meteo.com/).
 
 <img src="Glance.png" width="200"/> <img src="Menu.png" width="200"/>
 
@@ -31,7 +31,7 @@ Monochrome watches (Instinct) draw everything in white.
 
 ## Usage
 
-1. Open LakeWind on your watch. It shows the wind at your favourite spot, at first the Club Nautique de Versoix on Lake Geneva.
+1. Open WindWatch on your watch. It shows the wind at your favourite spot, at first the Club Nautique de Versoix on Lake Geneva.
 2. Press START for the menu:
    - **Set favourite here** saves where you stand as your favourite spot.
    - **Show** switches between **Favourite** and **GPS position**. With GPS position, the view follows you with GPS while it is open. The glance gets no GPS of its own and shows the last position the view got.
@@ -62,7 +62,7 @@ Requirements: [Connect IQ SDK](https://developer.garmin.com/connect-iq/sdk/) or 
 bash scripts/build_iq.sh <developer_key.der>
 ```
 
-This creates `bin/LakeWind.iq` for every device in `manifest.xml` with the toolchain pinned in `scripts/toolchain.env`, the same one CI uses, and fails on compiler warnings.
+This creates `bin/WindWatch.iq` for every device in `manifest.xml` with the toolchain pinned in `scripts/toolchain.env`, the same one CI uses, and fails on compiler warnings.
 It uses Docker if it's installed, natively or in WSL. Otherwise the locally installed SDK must match the pinned version exactly.
 With Docker it then updates the screenshots, see `scripts/screenshots.sh`.
 

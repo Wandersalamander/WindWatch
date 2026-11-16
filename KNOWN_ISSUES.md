@@ -1,6 +1,6 @@
 # Known issues
 
-Taken over from TwelveLakes and not yet checked on LakeWind.
+Taken over from TwelveLakes and not yet checked on WindWatch.
 
 ## Glance shows no wind at first on older watches
 

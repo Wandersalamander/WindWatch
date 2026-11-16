@@ -14,7 +14,7 @@ const CHART_GAP_RATIO = 0.02;
 
 //! The current wind and one forecast page, for the favourite or, in GPS
 //! mode, for where the watch is
-class LakeWindView extends WatchUi.View {
+class WindWatchView extends WatchUi.View {
     private var _page as ForecastPage;
 
     function initialize(page as ForecastPage) {
@@ -124,7 +124,9 @@ class LakeWindView extends WatchUi.View {
                 forecastUrl(position),
                 null,
                 {
-                    :responseType => Communications.HTTP_RESPONSE_CONTENT_TYPE_JSON,
+                    :responseType
+                    =>
+                    Communications.HTTP_RESPONSE_CONTENT_TYPE_JSON,
                     :context => key,
                 },
                 method(:onReceive)
@@ -141,7 +143,7 @@ class LakeWindView extends WatchUi.View {
         data as Dictionary or String or Null,
         requestedKey as Object
     ) as Void {
-        System.println("LakeWindView.onReceive " + responseCode.toString());
+        System.println("WindWatchView.onReceive " + responseCode.toString());
         if (responseCode == 200 && data instanceof Dictionary) {
             var wind = currentWind(data);
             var forecast = hourlyForecast(data);

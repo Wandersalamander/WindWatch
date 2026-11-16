@@ -5,7 +5,7 @@ import Toybox.Activity;
 using Toybox.Application.Storage;
 
 (:glance)
-class LakeWindApp extends Application.AppBase {
+class WindWatchApp extends Application.AppBase {
     function initialize() {
         AppBase.initialize();
     }
@@ -28,6 +28,6 @@ class LakeWindApp extends Application.AppBase {
     }
 }
 
-function getApp() as LakeWindApp {
-    return Application.getApp() as LakeWindApp;
+function getApp() as WindWatchApp {
+    return Application.getApp() as WindWatchApp;
 }

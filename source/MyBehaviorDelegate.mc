@@ -12,9 +12,9 @@ enum {
 
 //! The view's onShow takes over GPS again when the menu closes
 class MyMenuDelegate extends WatchUi.Menu2InputDelegate {
-    var view as LakeWindView;
+    var view as WindWatchView;
 
-    function initialize(view as LakeWindView) {
+    function initialize(view as WindWatchView) {
         Menu2InputDelegate.initialize();
         // Warms up GPS, so "Set favourite here" gets a good fix
         Position.enableLocationEvents(
@@ -62,9 +62,9 @@ class MyMenuDelegate extends WatchUi.Menu2InputDelegate {
 }
 
 class MyBehaviorDelegate extends WatchUi.BehaviorDelegate {
-    var view as LakeWindView;
+    var view as WindWatchView;
 
-    function initialize(view as LakeWindView) {
+    function initialize(view as WindWatchView) {
         BehaviorDelegate.initialize();
         self.view = view;
     }
@@ -92,7 +92,9 @@ class MyBehaviorDelegate extends WatchUi.BehaviorDelegate {
                 {}
             )
         );
-        menu.addItem(new WatchUi.MenuItem(Rez.Strings.Reload, null, RELOAD, {}));
+        menu.addItem(
+            new WatchUi.MenuItem(Rez.Strings.Reload, null, RELOAD, {})
+        );
         menu.addItem(
             new WatchUi.MenuItem(Rez.Strings.Credits, null, CREDITS, {})
         );
