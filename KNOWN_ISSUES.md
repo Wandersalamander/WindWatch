@@ -8,11 +8,17 @@ On the fr55, instinct2 and descentg1 the TwelveLakes glance received and
 stored its value, but the watch did not redraw the glance after
 `requestUpdate()`. The wind should show the next time the glance is drawn.
 
-## Not checked on touch watches
+## Swipe hint over the page title on touch watches
 
-`scripts/simulator_screenshots.py` presses keys but cannot swipe, so swiping
-between the forecast pages was not seen on the venu, vivoactive and approach
-watches. On the venusq2 the menu did not open in TwelveLakes either.
+On the venu, venusq2 and vivoactive the page loop shows a swipe up hint at
+the bottom of the screen, which covers half of the page title. In the
+simulator it stays there; check on a real watch whether it hides.
+
+## Instinct view not seen in the simulator
+
+The Instinct simulator only shows the glance: START does not open the app,
+and DOWN scrolls the glance list. The glance shows the wind on the
+monochrome screen, but the view and the menu were not seen there.
 
 ## Model wind on small lakes
 
@@ -27,8 +33,10 @@ position the view got, until the view is opened again.
 
 ## Forecast pages not checked on watches without the page loop
 
-The fr745, fr945 and watches on Connect IQ below 3.4 switch the forecast
-pages in one view instead of the watch's own page loop. In the simulator
-the fr745 shows the view and the menu, but DOWN moved the widget carousel
-on, and START did not open the app from its glance, so switching pages
-there was not seen. Check it on a real watch.
+Watches on Connect IQ 3, like the fenix 6, MARQ, fr55, fr745, fr945,
+Instinct 2 and Descent MK2, run the app as a widget, where the watch's own
+page loop fails to start. They switch the forecast pages in one view
+instead. In the simulator the fenix 6, fr55 and fr745 show the view and the
+menu, but DOWN moves the widget carousel on, as the simulator starts the
+widget in the carousel, so switching pages there was not seen. Check it on
+a real watch, opened from the glance.
