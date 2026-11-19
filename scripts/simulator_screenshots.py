@@ -39,6 +39,8 @@ PAGE_INDICATOR_SECONDS = 5
 PAGE_SWITCH_SECONDS = 2
 # The simulator ignores a press and release without a pause between them
 KEY_HOLD_SECONDS = 0.15
+# Mouse moves while a key or swipe is held, so the simulator sees a swipe
+DRAG_STEPS = 10
 
 
 def main(device, output_dir):
@@ -67,7 +69,7 @@ def main(device, output_dir):
     time.sleep(MENU_OPEN_SECONDS + PAGE_INDICATOR_SECONDS)
     save("View.png")
     for page in ("ViewDay.png", "ViewDays.png"):
-        press_key(simulator_config, "down")
+        show_next_page(simulator_config)
         time.sleep(PAGE_SWITCH_SECONDS)
         save(page)
 
@@ -125,21 +127,53 @@ def center_glance(device, config):
         json.dump(config, file)
 
 
-# Clicks the key's button on the device image, through the XTest library of the
-# image, as the image has no input tool like xdotool
+# Touch watches like the venu and vivoactive have no DOWN button and swipe up
+def show_next_page(config):
+    if any(key["id"] == "down" for key in config["keys"]):
+        press_key(config, "down")
+    else:
+        swipe_up(config)
+
+
+# Clicks the key's button on the device image
 def press_key(config, key_id):
     location = next(key["location"] for key in config["keys"] if key["id"] == key_id)
-    x = DEVICE_IMAGE_OFFSET[0] + location["x"] + location["width"] // 2
-    y = DEVICE_IMAGE_OFFSET[1] + location["y"] + location["height"] // 2
+    x, y = center_of(location)
+    drag(x, y, x, y)
+
+
+# Drags across the middle of the screen, from 3/4 of its height to 1/4
+def swipe_up(config):
+    location = config["display"]["location"]
+    x, y = center_of(location)
+    quarter = location["height"] // 4
+    drag(x, y + quarter, x, y - quarter)
+
+
+def center_of(location):
+    return (
+        DEVICE_IMAGE_OFFSET[0] + location["x"] + location["width"] // 2,
+        DEVICE_IMAGE_OFFSET[1] + location["y"] + location["height"] // 2,
+    )
+
+
+# Presses the mouse at the start and releases it at the end, through the XTest
+# library of the image, as the image has no input tool like xdotool
+def drag(start_x, start_y, end_x, end_y):
     x11 = ctypes.cdll.LoadLibrary("libX11.so.6")
     xtest = ctypes.cdll.LoadLibrary("libXtst.so.6")
     x11.XOpenDisplay.restype = ctypes.c_void_p
     display = ctypes.c_void_p(x11.XOpenDisplay(DISPLAY.encode()))
     left_button, no_delay, current_screen = 1, 0, -1
-    xtest.XTestFakeMotionEvent(display, current_screen, x, y, no_delay)
+    xtest.XTestFakeMotionEvent(display, current_screen, start_x, start_y, no_delay)
     xtest.XTestFakeButtonEvent(display, left_button, True, no_delay)
     x11.XFlush(display)
-    time.sleep(KEY_HOLD_SECONDS)
+    for step in range(1, DRAG_STEPS + 1):
+        time.sleep(KEY_HOLD_SECONDS / DRAG_STEPS)
+        x = start_x + (end_x - start_x) * step // DRAG_STEPS
+        y = start_y + (end_y - start_y) * step // DRAG_STEPS
+        xtest.XTestFakeMotionEvent(display, current_screen, x, y, no_delay)
+        x11.XFlush(display)
     xtest.XTestFakeButtonEvent(display, left_button, False, no_delay)
     x11.XFlush(display)
 
