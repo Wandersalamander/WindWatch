@@ -63,7 +63,7 @@ def main(device, output_dir):
     simulator.wait()
 
     # The menu opens by itself on the first start, as no favourite is stored
-    start_app(program, device, glance_setting="0")
+    open_app(program, device, simulator_config)
     save("Menu.png")
     press_key(simulator_config, "esc")
     time.sleep(MENU_OPEN_SECONDS + PAGE_INDICATOR_SECONDS)
@@ -72,6 +72,23 @@ def main(device, output_dir):
         show_next_page(simulator_config)
         time.sleep(PAGE_SWITCH_SECONDS)
         save(page)
+
+
+# Watches like the Instinct have no glance launch setting and always start in
+# the glance list, where START opens the app from the selected glance. As
+# seen in the simulator, watches with a subscreen start with no glance
+# selected, and DOWN selects it, while the Instinct Crossover starts with it
+# selected.
+def open_app(program, device, config):
+    if config.get("glance", {}).get("glanceLaunchMenuDisabled"):
+        start_app(program, device, glance_setting="1")
+        if "subscreen" in config:
+            press_key(config, "down")
+            time.sleep(PAGE_SWITCH_SECONDS)
+        press_key(config, "enter")
+        time.sleep(APP_LOAD_SECONDS)
+    else:
+        start_app(program, device, glance_setting="0")
 
 
 def start_app(program, device, glance_setting):
