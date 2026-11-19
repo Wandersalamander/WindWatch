@@ -13,6 +13,10 @@ const SMALL_TEXT_FONT = Graphics.FONT_XTINY;
 const OCTAGON_CORNER_RATIO = 0.18;
 // Keeps text clear of the ring drawn around a subscreen
 const SUBSCREEN_MARGIN = 4;
+// Keeps content clear of the slightly rounded side and bottom edges of
+// semi-octagon displays, where the bezel of the Instinct 2S also overlaps
+// the screen in the simulator
+const OCTAGON_EDGE_MARGIN = 6;
 // Fraction of the line height taken by a direction arrow in front of the text
 (:glance)
 const ARROW_SIZE_RATIO = 0.7;
@@ -116,8 +120,8 @@ function chordLength(radius as Float, distanceFromCenter as Float) as Float {
 
 //! Horizontal extent [left, right] that is visible over the whole height
 //! of the row from top to bottom, excluding round display edges and subscreens.
-//! Symmetric around the middle of the screen, so content in it looks centered
-//! even when a subscreen cuts one side.
+//! Beside a subscreen it ends at the subscreen, so content centered in it
+//! uses the free space on its left, as the Instinct's own screens do.
 function visibleSpan(
     dc as Dc,
     top as Numeric,
@@ -125,21 +129,40 @@ function visibleSpan(
 ) as [Float, Float] {
     var span = displaySpan(dc, top, bottom);
     var subscreen = subscreenArea();
-    if (subscreen != null) {
-        var subscreenLeft = subscreen.x as Number;
-        var subscreenBottom =
-            (subscreen.y as Number) + (subscreen.height as Number);
-        var rightOfSpan = subscreenLeft - SUBSCREEN_MARGIN;
-        if (top < subscreenBottom && rightOfSpan < span[1]) {
+    if (subscreen != null && top < subscreenBottom(subscreen)) {
+        var rightOfSpan = (subscreen.x as Number) - SUBSCREEN_MARGIN;
+        if (rightOfSpan < span[1]) {
             span[1] = rightOfSpan.toFloat();
         }
     }
-    var middle = dc.getWidth() / 2.0;
-    var halfWidth = middle - span[0];
-    if (span[1] - middle < halfWidth) {
-        halfWidth = span[1] - middle;
+    return span;
+}
+
+//! Round screens narrow toward the bottom as toward the top, so content ends
+//! as far above the bottom as it starts below the top. The flat bottom of
+//! semi-octagon displays (Instinct) is used up to its edge.
+function contentBottom(dc as Dc, contentTop as Float) as Float {
+    var height = dc.getHeight();
+    var shape = System.getDeviceSettings().screenShape;
+    if (shape == System.SCREEN_SHAPE_SEMI_OCTAGON) {
+        return (height - OCTAGON_EDGE_MARGIN).toFloat();
     }
-    return [middle - halfWidth, middle + halfWidth];
+    return height - contentTop;
+}
+
+//! The top, moved below the subscreen if there is one, for content that
+//! needs the full width of the screen
+function belowSubscreen(top as Float) as Float {
+    var subscreen = subscreenArea();
+    if (subscreen == null) {
+        return top;
+    }
+    var freeTop = (subscreenBottom(subscreen) + SUBSCREEN_MARGIN).toFloat();
+    return top > freeTop ? top : freeTop;
+}
+
+function subscreenBottom(subscreen as BoundingBox) as Number {
+    return (subscreen.y as Number) + (subscreen.height as Number);
 }
 
 function displaySpan(
@@ -161,8 +184,8 @@ function octagonSpan(dc as Dc, top as Numeric) as [Float, Float] {
     var width = dc.getWidth().toFloat();
     var cornerCut = OCTAGON_CORNER_RATIO * width;
     var inset = (cornerCut - top).toFloat();
-    if (inset < 0) {
-        inset = 0.0;
+    if (inset < OCTAGON_EDGE_MARGIN) {
+        inset = OCTAGON_EDGE_MARGIN.toFloat();
     }
     return [inset, width - inset];
 }

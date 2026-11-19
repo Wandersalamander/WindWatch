@@ -14,11 +14,11 @@ On the venu, venusq2 and vivoactive the page loop shows a swipe up hint at
 the bottom of the screen, which covers half of the page title. In the
 simulator it stays there; check on a real watch whether it hides.
 
-## Instinct view not seen in the simulator
+## Watch hands over the chart on the Instinct Crossover
 
-The Instinct simulator only shows the glance: START does not open the app,
-and DOWN scrolls the glance list. The glance shows the wind on the
-monochrome screen, but the view and the menu were not seen there.
+The hands of the Instinct Crossover park across the middle of the screen
+while the app shows, where they hide the gust marks and the top of the
+bars, and the first menu item.
 
 ## Model wind on small lakes
 

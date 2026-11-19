@@ -97,11 +97,12 @@ class WindWatchView extends WatchUi.View {
         var key = positionKey(shownPosition());
         var height = dc.getHeight();
         var windTop = (height * (1 - CONTENT_HEIGHT_RATIO)) / 2;
-        var chartTop =
+        var chartTop = belowSubscreen(
             windTop +
-            dc.getFontHeight(LARGE_TEXT_FONT) +
-            CHART_GAP_RATIO * height;
-        var chartBottom = height - windTop;
+                dc.getFontHeight(LARGE_TEXT_FONT) +
+                CHART_GAP_RATIO * height
+        );
+        var chartBottom = contentBottom(dc, windTop);
 
         drawWind(dc, windTop, getWindFor(key));
         drawForecast(dc, chartTop, chartBottom, getForecastsFor(key));
