@@ -27,50 +27,41 @@ const FONTS_BY_SIZE as Array<FontType> = [
     Graphics.FONT_XTINY,
 ];
 
-//! Draws the wind range with its direction arrow in front, centered in the
-//! visible part of its row. Without the unit, which the forecast chart shows,
-//! as the top row of round screens is narrow.
+//! Draws the wind range with its direction arrow in front and the mark
+//! behind, centered in the visible part of its row. Without the unit, which
+//! the forecast chart shows, as the top row of round screens is narrow.
 function drawWindLine(
     dc as Dc,
     top as Numeric,
     font as FontType,
-    wind as Wind
-) as Void {
-    var width = arrowLineTextWidth(dc, top, font);
-    var text = fitText(dc, formatWindRange(wind, speedUnit()), font, width);
-    drawArrowLine(dc, top, font, text, wind[WIND_DIRECTION]);
-}
-
-function drawArrowLine(
-    dc as Dc,
-    top as Numeric,
-    font as FontType,
-    text as String,
-    fromDirection as Float
+    wind as Wind,
+    mark as DataMark?
 ) as Void {
     var height = dc.getFontHeight(font);
     var span = visibleSpan(dc, top, top + height);
-    var lineWidth = height + dc.getTextWidthInPixels(text, font);
-    var left = (span[0] + span[1] - lineWidth) / 2.0;
+    var markSpace = markWidth(mark, height);
+    var text = fitText(
+        dc,
+        formatWindRange(wind, speedUnit()),
+        font,
+        span[1] - span[0] - height - markSpace
+    );
+    var textWidth = dc.getTextWidthInPixels(text, font);
+    var left = (span[0] + span[1] - height - textWidth - markSpace) / 2.0;
+    var centerY = top + height / 2.0;
+    var symbolSize = ARROW_SIZE_RATIO * height;
     drawWindArrow(
         dc,
         left + height / 2.0,
-        top + height / 2.0,
-        ARROW_SIZE_RATIO * height,
-        fromDirection
+        centerY,
+        symbolSize,
+        wind[WIND_DIRECTION]
     );
     dc.drawText(left + height, top, font, text, Graphics.TEXT_JUSTIFY_LEFT);
-}
-
-// The arrow takes a square of the line height in front of the text
-function arrowLineTextWidth(
-    dc as Dc,
-    top as Numeric,
-    font as FontType
-) as Float {
-    var height = dc.getFontHeight(font);
-    var span = visibleSpan(dc, top, top + height);
-    return span[1] - span[0] - height;
+    if (mark != null) {
+        var textRight = left + height + textWidth;
+        mark.draw(dc, textRight + height / 2.0, centerY, symbolSize);
+    }
 }
 
 //! Draws the text centered in the round subscreen, in the largest font it fits

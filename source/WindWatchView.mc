@@ -104,16 +104,19 @@ class WindWatchView extends WatchUi.View {
         );
         var chartBottom = contentBottom(dc, windTop);
 
-        drawWind(dc, windTop, getWindFor(key));
-        drawForecast(dc, chartTop, chartBottom, getForecastsFor(key));
+        drawWind(dc, windTop, key);
+        drawForecast(dc, chartTop, chartBottom, getLastForecasts());
     }
 
-    private function drawWind(dc as Dc, top as Float, wind as Wind?) as Void {
+    //! Shows the last known wind and forecasts offline too, marked when they
+    //! are not the current ones at the position key
+    private function drawWind(dc as Dc, top as Float, key as String) as Void {
+        var wind = getLastWind();
         if (wind == null) {
             return;
         }
         dc.setColor(Gfx.COLOR_WHITE, Gfx.COLOR_TRANSPARENT);
-        drawWindLine(dc, top, LARGE_TEXT_FONT, wind);
+        drawWindLine(dc, top, LARGE_TEXT_FONT, wind, shownDataMark(key));
         var subscreen = subscreenArea();
         if (subscreen != null) {
             // Only the mean speed, gusts and unit do not fit the subscreen
@@ -123,6 +126,16 @@ class WindWatchView extends WatchUi.View {
                 speedIn(wind[WIND_SPEED], speedUnit()).format("%.0f")
             );
         }
+    }
+
+    //! The glance refreshes the wind alone, so the forecasts can be older
+    //! or for another position
+    private function shownDataMark(key as String) as DataMark? {
+        var windMark = dataMarkFor(WIND, key);
+        if (windMark != null) {
+            return windMark;
+        }
+        return dataMarkFor(FORECASTS, key);
     }
 
     private function drawForecast(

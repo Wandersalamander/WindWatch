@@ -20,38 +20,53 @@ class WidgetGlanceView extends Ui.GlanceView {
         makeRequest();
     }
 
+    //! Shows the last known wind offline too, marked when it is not the
+    //! current one at the shown position
     function onUpdate(dc as Gfx.Dc) as Void {
-        var wind = getWindFor(positionKey(shownPosition()));
+        var wind = getLastWind();
         drawColorBar(dc, wind);
-        if (wind != null) {
-            drawWind(dc, wind);
+        if (wind == null) {
+            return;
         }
+        drawWind(dc, wind, dataMarkFor(WIND, positionKey(shownPosition())));
     }
 
-    // The arrow takes a square of the font height in front of the text
-    private function drawWind(dc as Gfx.Dc, wind as Wind) as Void {
+    // The arrow takes a square of the font height in front of the text, and
+    // the mark one behind it
+    private function drawWind(
+        dc as Gfx.Dc,
+        wind as Wind,
+        mark as DataMark?
+    ) as Void {
         var center = GLANCE_WIND_ROW * dc.getHeight();
-        var arrowSpace = dc.getFontHeight(Graphics.FONT_GLANCE);
+        var symbolSpace = dc.getFontHeight(Graphics.FONT_GLANCE);
+        var symbolSize = ARROW_SIZE_RATIO * symbolSpace;
         dc.setColor(Gfx.COLOR_WHITE, Gfx.COLOR_TRANSPARENT);
         drawWindArrow(
             dc,
-            arrowSpace / 2.0,
+            symbolSpace / 2.0,
             center,
-            ARROW_SIZE_RATIO * arrowSpace,
+            symbolSize,
             wind[WIND_DIRECTION]
         );
+        var text = fitText(
+            dc,
+            formatWind(wind, speedUnit()),
+            Graphics.FONT_GLANCE,
+            dc.getWidth() - symbolSpace - markWidth(mark, symbolSpace)
+        );
         dc.drawText(
-            arrowSpace,
+            symbolSpace,
             center,
             Graphics.FONT_GLANCE,
-            fitText(
-                dc,
-                formatWind(wind, speedUnit()),
-                Graphics.FONT_GLANCE,
-                dc.getWidth() - arrowSpace
-            ),
+            text,
             Graphics.TEXT_JUSTIFY_VCENTER | Graphics.TEXT_JUSTIFY_LEFT
         );
+        if (mark != null) {
+            var textWidth = dc.getTextWidthInPixels(text, Graphics.FONT_GLANCE);
+            var textRight = symbolSpace + textWidth;
+            mark.draw(dc, textRight + symbolSpace / 2.0, center, symbolSize);
+        }
     }
 
     //! Requests the current wind unless it is stored and recent

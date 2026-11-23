@@ -64,31 +64,40 @@ function storeFor(
     Storage.setValue(name + "Time", Time.now().value());
 }
 
-//! The value stored for the position key, or null when it is for another one
+//! Whether the stored value was requested for the position key
 (:glance)
-function storedFor(name as String, key as String) as Storage.ValueType? {
-    if (key.equals(Storage.getValue(name + "Key"))) {
-        return Storage.getValue(name);
+function isStoredFor(name as String, key as String) as Boolean {
+    return (
+        Storage.getValue(name) != null &&
+        key.equals(Storage.getValue(name + "Key"))
+    );
+}
+
+(:glance)
+function requestTime(name as String) as Time.Moment? {
+    var time = Storage.getValue(name + "Time") as Number?;
+    if (time == null) {
+        return null;
     }
-    return null;
+    return new Time.Moment(time);
 }
 
 //! Whether the value for the position key is missing or due for a new request
 (:glance)
 function needsRequest(name as String, key as String) as Boolean {
-    var time = Storage.getValue(name + "Time") as Number?;
-    if (storedFor(name, key) == null || time == null) {
-        return true;
+    if (isStoredFor(name, key)) {
+        return isDue(requestTime(name));
     }
-    return isDue(new Time.Moment(time));
+    return true;
 }
 
+//! The last wind stored, for whichever position, see dataMarkFor
 (:glance)
-function getWindFor(key as String) as Wind? {
-    return storedFor(WIND, key) as Wind?;
+function getLastWind() as Wind? {
+    return Storage.getValue(WIND) as Wind?;
 }
 
-//! [hourly, quarter hourly] forecast for the position key
-function getForecastsFor(key as String) as [Forecast, Forecast]? {
-    return storedFor(FORECASTS, key) as [Forecast, Forecast]?;
+//! The last [hourly, quarter hourly] forecasts stored, see dataMarkFor
+function getLastForecasts() as [Forecast, Forecast]? {
+    return Storage.getValue(FORECASTS) as [Forecast, Forecast]?;
 }

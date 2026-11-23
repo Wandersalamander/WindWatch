@@ -22,14 +22,30 @@ const QUARTER_HOURLY_KEY = "minutely_15";
 (:glance)
 const REQUEST_INTERVAL = 15 * 60;
 
+// Data that missed a refresh, as the watch was offline or the request
+// failed, no longer passes for the current wind
+(:glance)
+const OUTDATED_AFTER = 2 * REQUEST_INTERVAL;
+
 //! Whether data requested at lastUpdate is old enough to request it again
 (:glance)
 function isDue(lastUpdate as Time.Moment?) as Boolean {
+    return isOlderThan(lastUpdate, REQUEST_INTERVAL);
+}
+
+//! Whether data requested at lastUpdate missed its refresh
+(:glance)
+function isOutdated(lastUpdate as Time.Moment?) as Boolean {
+    return isOlderThan(lastUpdate, OUTDATED_AFTER);
+}
+
+(:glance)
+function isOlderThan(lastUpdate as Time.Moment?, seconds as Number) as Boolean {
     if (lastUpdate == null) {
         return true;
     }
-    var interval = new Time.Duration(REQUEST_INTERVAL);
-    return Time.now().greaterThan(lastUpdate.add(interval));
+    var age = new Time.Duration(seconds);
+    return Time.now().greaterThan(lastUpdate.add(age));
 }
 
 (:glance)

@@ -13,6 +13,7 @@ WindWatch is a Garmin glance app that shows the wind at your favourite spot or w
 - **Favourite or GPS position:** the menu switches between the wind at your favourite spot and the wind where you are.
 - **Three forecast pages**, switched with DOWN and UP or by swiping: the next 3 hours in quarter hours, the next 24 and the next 72 hours in hours. Each page starts at the current sample, so a forecast stored without a connection never shows past hours. The title of the page shows right of the chart.
 - **Forecast chart:** bars colored by wind speed, light gray marks for the gusts and arrows above the bars for the wind direction.
+- **Offline:** without a connection the last known wind and forecast stay on screen, marked behind the wind when they are not the current ones: a pin when they are for another position, like before GPS moved on, and a clock when they missed a refresh, as the phone was offline or the request failed.
 - **Knots or km/h:** knots by default, km/h can be chosen in the app settings in Garmin Connect or Garmin Express.
 - **No API key** needed.
 
@@ -49,8 +50,8 @@ https://api.open-meteo.com/v1/forecast?latitude=46.29&longitude=6.17&current=win
 ```
 
 The view adds the hourly forecast with `&hourly=wind_speed_10m,wind_gusts_10m,wind_direction_10m&forecast_hours=72` and the quarter hourly one with `&minutely_15=...&forecast_minutely_15=12`, both starting now. The 24 hour page is cut from the hourly forecast.
-Positions are rounded to 2 decimals, about 1 km, which is finer than the weather models. The data is stored per rounded position, so switching between favourite and GPS never shows the wind of the other place, and GPS jitter asks for nothing new.
-Each kind of request is sent at most every 15 minutes per position, as often as Open-Meteo updates the current wind. Only a new position or Reload in the menu ask earlier.
+Positions are rounded to 2 decimals, about 1 km, which is finer than the weather models. The data is stored with its rounded position, so GPS jitter asks for nothing new. Data of another position, like after switching between favourite and GPS or moving on in GPS mode, shows with the pin until the new data comes in.
+Each kind of request is sent at most every 15 minutes per position, as often as Open-Meteo updates the current wind. Only a new position or Reload in the menu ask earlier. Data older than 30 minutes missed a refresh and shows with the clock.
 The app always requests km/h and converts for display, so a changed unit shows without a new request.
 Times are requested as unix times, which are smaller to parse and store on the watch than ISO times.
 All wind values are 10 m above ground, from the Open-Meteo `best_match` model. `scripts/check_api_contract.sh` checks the response at spots around the world and runs daily in CI.

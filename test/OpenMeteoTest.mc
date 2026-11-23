@@ -80,6 +80,18 @@ function requestTwentyMinutesAfterTheLastIsDue(logger as Logger) as Boolean {
 }
 
 (:test)
+function dataTwentyMinutesOldIsNotOutdated(logger as Logger) as Boolean {
+    var twentyMinutesAgo = Time.now().subtract(new Time.Duration(20 * 60));
+    return isOutdated(twentyMinutesAgo as Time.Moment) == false;
+}
+
+(:test)
+function dataThatMissedItsRefreshIsOutdated(logger as Logger) as Boolean {
+    var fortyMinutesAgo = Time.now().subtract(new Time.Duration(40 * 60));
+    return isOutdated(fortyMinutesAgo as Time.Moment);
+}
+
+(:test)
 function currentWindReadsDirectionAsFloat(logger as Logger) as Boolean {
     return (currentWind(sampleResponse()) as Wind)[WIND_DIRECTION] == 215.0;
 }
