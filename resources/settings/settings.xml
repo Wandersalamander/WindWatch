@@ -3,6 +3,16 @@
         <settingConfig type="list">
             <listEntry value="0">@Strings.Knots</listEntry>
             <listEntry value="1">@Strings.KilometersPerHour</listEntry>
+            <listEntry value="2">@Strings.MetersPerSecond</listEntry>
+            <listEntry value="3">@Strings.MilesPerHour</listEntry>
+            <listEntry value="4">@Strings.Beaufort</listEntry>
+        </settingConfig>
+    </setting>
+    <setting propertyKey="@Properties.WindFormat" title="@Strings.WindFormatTitle">
+        <settingConfig type="list">
+            <listEntry value="0">@Strings.WindFormatGust</listEntry>
+            <listEntry value="1">@Strings.WindFormatBrackets</listEntry>
+            <listEntry value="2">@Strings.WindFormatDash</listEntry>
         </settingConfig>
     </setting>
 </settings>

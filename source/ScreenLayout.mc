@@ -27,7 +27,7 @@ const FONTS_BY_SIZE as Array<FontType> = [
     Graphics.FONT_XTINY,
 ];
 
-//! Draws the wind range with its direction arrow in front and the mark
+//! Draws the mean and gust speed with the direction arrow in front and the mark
 //! behind, centered in the visible part of its row. Without the unit, which
 //! the forecast chart shows, as the top row of round screens is narrow.
 function drawWindLine(
@@ -42,7 +42,7 @@ function drawWindLine(
     var markSpace = markWidth(mark, height);
     var text = fitText(
         dc,
-        formatWindRange(wind, speedUnit()),
+        formatSpeedAndGust(wind, speedUnit(), windFormat()),
         font,
         span[1] - span[0] - height - markSpace
     );

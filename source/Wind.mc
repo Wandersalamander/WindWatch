@@ -22,16 +22,25 @@ const ARROW_SHAPE as Array<[Float, Float]> = [
     [-0.7, 0.8],
 ];
 
-//! "<speed>-<gust> <unit>", the range the wind blows in
+//! The mean and gust speed with the unit, like "12 G18 kn"
 (:glance)
-function formatWind(wind as Wind, unit as SpeedUnit) as String {
-    return formatWindRange(wind, unit) + " " + speedUnitLabel(unit);
+function formatWind(
+    wind as Wind,
+    unit as SpeedUnit,
+    format as WindFormat
+) as String {
+    return formatSpeedAndGust(wind, unit, format) + " " + speedUnitLabel(unit);
 }
 
-//! "<speed>-<gust>", for where the unit is shown elsewhere
+//! The mean and gust speed, like "12 G18", for where the unit is shown
+//! elsewhere
 (:glance)
-function formatWindRange(wind as Wind, unit as SpeedUnit) as String {
-    return Lang.format("$1$-$2$", [
+function formatSpeedAndGust(
+    wind as Wind,
+    unit as SpeedUnit,
+    format as WindFormat
+) as String {
+    return Lang.format(WIND_FORMAT_PATTERNS[format], [
         speedIn(wind[WIND_SPEED], unit).format("%.0f"),
         speedIn(wind[WIND_GUST], unit).format("%.0f"),
     ]);

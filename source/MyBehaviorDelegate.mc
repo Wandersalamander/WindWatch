@@ -25,7 +25,14 @@ class MyMenuDelegate extends WatchUi.Menu2InputDelegate {
     }
 
     function onSelect(item as WatchUi.MenuItem) as Void {
-        var id = item.getId() as Number;
+        var itemId = item.getId();
+        if (itemId instanceof ListSetting) {
+            // Steps in place, the menu stays open
+            itemId.chooseNext();
+            item.setSubLabel(itemId.chosenName());
+            return;
+        }
+        var id = itemId as Number;
         if (id == TOGGLE_SHOWN_POSITION) {
             // Switches in place, the menu stays open
             setShowsGps((item as WatchUi.ToggleMenuItem).isEnabled());
@@ -118,7 +125,40 @@ function showMenu(view as WindWatchView) as Void {
             {}
         )
     );
+    addListSettingItem(menu, Rez.Strings.SpeedUnitMenu, speedUnitSetting());
+    addListSettingItem(menu, Rez.Strings.WindFormatMenu, windFormatSetting());
     menu.addItem(new WatchUi.MenuItem(Rez.Strings.Reload, null, RELOAD, {}));
     menu.addItem(new WatchUi.MenuItem(Rez.Strings.Credits, null, CREDITS, {}));
     WatchUi.pushView(menu, new MyMenuDelegate(view), WatchUi.SLIDE_LEFT);
+}
+
+//! An item with the chosen entry below its label, see MyMenuDelegate.onSelect
+function addListSettingItem(
+    menu as WatchUi.Menu2,
+    label as ResourceId,
+    setting as ListSetting
+) as Void {
+    menu.addItem(
+        new WatchUi.MenuItem(label, setting.chosenName(), setting, {})
+    );
+}
+
+//! In the order of SpeedUnit
+function speedUnitSetting() as ListSetting {
+    return new ListSetting("SpeedUnit", [
+        Rez.Strings.Knots,
+        Rez.Strings.KilometersPerHour,
+        Rez.Strings.MetersPerSecond,
+        Rez.Strings.MilesPerHour,
+        Rez.Strings.Beaufort,
+    ]);
+}
+
+//! In the order of WindFormat
+function windFormatSetting() as ListSetting {
+    return new ListSetting("WindFormat", [
+        Rez.Strings.WindFormatGust,
+        Rez.Strings.WindFormatBrackets,
+        Rez.Strings.WindFormatDash,
+    ]);
 }

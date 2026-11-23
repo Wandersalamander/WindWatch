@@ -1,4 +1,6 @@
 <properties>
-    <!-- 0 knots, 1 km/h, see SpeedUnit in source/SpeedUnit.mc -->
+    <!-- 0 knots, 1 km/h, 2 m/s, 3 mph, 4 Beaufort, see SpeedUnit in source/SpeedUnit.mc -->
     <property id="SpeedUnit" type="number">0</property>
+    <!-- 0 "12 G18", 1 "12 (18)", 2 "12-18", see source/WindFormat.mc -->
+    <property id="WindFormat" type="number">0</property>
 </properties>

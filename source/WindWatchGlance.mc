@@ -51,7 +51,7 @@ class WidgetGlanceView extends Ui.GlanceView {
         );
         var text = fitText(
             dc,
-            formatWind(wind, speedUnit()),
+            formatWind(wind, speedUnit(), windFormat()),
             Graphics.FONT_GLANCE,
             dc.getWidth() - symbolSpace - markWidth(mark, symbolSpace)
         );

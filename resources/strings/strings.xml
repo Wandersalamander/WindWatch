@@ -16,6 +16,15 @@
     <string id="SpeedUnitTitle">Wind speed unit</string>
     <string id="Knots">Knots</string>
     <string id="KilometersPerHour">km/h</string>
+    <string id="SpeedUnitMenu">Unit</string>
+    <string id="WindFormatMenu">Wind format</string>
+    <string id="MetersPerSecond">m/s</string>
+    <string id="MilesPerHour">mph</string>
+    <string id="Beaufort">Beaufort</string>
+    <string id="WindFormatGust">12 G18</string>
+    <string id="WindFormatBrackets">12 (18)</string>
+    <string id="WindFormatDash">12-18</string>
+    <string id="WindFormatTitle">Mean wind and gusts</string>
     <string id="FavouriteSaved">Favourite saved</string>
     <string id="ThanksOpenMeteo">Data: Open-Meteo.com</string>
 </strings>

@@ -8,13 +8,14 @@ WindWatch is a Garmin glance app that shows the wind at your favourite spot or w
 
 ## Features
 
-- **Glance:** the current wind as `<mean>-<gust> kn` with an arrow pointing where the wind blows, and a Beaufort color bar with the wind on it.
+- **Glance:** the current wind as `<mean> G<gust> kn`, like `12 G18 kn` for a mean wind of 12 knots with gusts of 18, with an arrow pointing where the wind blows, and a Beaufort color bar with the wind on it.
 - **View:** the current wind and a forecast chart.
 - **Favourite or GPS position:** the menu switches between the wind at your favourite spot and the wind where you are.
 - **Three forecast pages**, switched with DOWN and UP or by swiping: the next 3 hours in quarter hours, the next 24 and the next 72 hours in hours. Each page starts at the current sample, so a forecast stored without a connection never shows past hours. The title of the page shows right of the chart.
 - **Forecast chart:** bars colored by wind speed, light gray marks for the gusts and arrows above the bars for the wind direction.
 - **Offline:** without a connection the last known wind and forecast stay on screen, marked behind the wind when they are not the current ones: a pin when they are for another position, like before GPS moved on, and a clock when they missed a refresh, as the phone was offline or the request failed.
-- **Knots or km/h:** knots by default, km/h can be chosen in the app settings in Garmin Connect or Garmin Express.
+- **Knots, km/h, m/s, mph or Beaufort:** knots by default, the others can be chosen in the menu on the watch or in the app settings in Garmin Connect or Garmin Express.
+- **Wind format:** the app settings also offer `12 (18)` and `12-18` in place of `12 G18`.
 - **No API key** needed.
 
 ### Colors
@@ -36,6 +37,7 @@ Monochrome watches (Instinct) draw everything in white.
 2. Press START for the menu (on the first start it opens by itself; press BACK to keep the default):
    - **Set favourite here** saves where you stand as your favourite spot.
    - **Show** switches between **Favourite** and **GPS position**. With GPS position, the view follows you with GPS while it is open. The glance gets no GPS of its own and shows the last position the view got.
+   - **Unit** and **Wind format** step to the next speed unit or wind format on each press, the same settings as in Garmin Connect.
    - **Reload** asks for new data right away.
    - **Credits** shows where the wind data comes from, Open-Meteo.com under CC BY 4.0.
 
