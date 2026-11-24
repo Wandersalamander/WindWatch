@@ -15,29 +15,45 @@ const GLANCE_BAR_ROW = 0.72;
 //! In GPS mode that is the last fix the view got, as glances get no GPS.
 (:glance)
 class WidgetGlanceView extends Ui.GlanceView {
+    // Read only when they may change, as the glance list redraws every
+    // glance on each frame while it scrolls, and the storage is slow
+    private var _wind as Wind? = null;
+    private var _windText as String = "";
+    private var _mark as DataMark? = null;
+
     function initialize() {
         GlanceView.initialize();
         makeRequest();
     }
 
-    //! Shows the last known wind offline too, marked when it is not the
+    function onShow() as Void {
+        readShownWind();
+    }
+
+    //! The last known wind shows offline too, marked when it is not the
     //! current one at the shown position
-    function onUpdate(dc as Gfx.Dc) as Void {
+    private function readShownWind() as Void {
         var wind = getLastWind();
+        _wind = wind;
+        if (wind != null) {
+            _windText = formatWind(wind, speedUnit(), windFormat());
+        }
+        _mark = dataMarkFor(WIND, positionKey(shownPosition()));
+    }
+
+    function onUpdate(dc as Gfx.Dc) as Void {
+        var wind = _wind;
         drawColorBar(dc, wind);
         if (wind == null) {
             return;
         }
-        drawWind(dc, wind, dataMarkFor(WIND, positionKey(shownPosition())));
+        drawWind(dc, wind);
     }
 
     // The arrow takes a square of the font height in front of the text, and
     // the mark one behind it
-    private function drawWind(
-        dc as Gfx.Dc,
-        wind as Wind,
-        mark as DataMark?
-    ) as Void {
+    private function drawWind(dc as Gfx.Dc, wind as Wind) as Void {
+        var mark = _mark;
         var center = GLANCE_WIND_ROW * dc.getHeight();
         var symbolSpace = dc.getFontHeight(Graphics.FONT_GLANCE);
         var symbolSize = ARROW_SIZE_RATIO * symbolSpace;
@@ -51,7 +67,7 @@ class WidgetGlanceView extends Ui.GlanceView {
         );
         var text = fitText(
             dc,
-            formatWind(wind, speedUnit(), windFormat()),
+            _windText,
             Graphics.FONT_GLANCE,
             dc.getWidth() - symbolSpace - markWidth(mark, symbolSpace)
         );
@@ -149,6 +165,7 @@ class WidgetGlanceView extends Ui.GlanceView {
                 storeFor(WIND, wind, key);
             }
         }
+        readShownWind();
         requestUpdate();
     }
 }
